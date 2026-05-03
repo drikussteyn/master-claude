@@ -991,6 +991,7 @@ export default function App() {
   // Unlock from personalisation result (only charge for steps not already owned)
   const unlockRecs = () => {
     if (!recs) return;
+    if (!user) { setShowAuth(true); return; }
     const newIds = recs.ids.filter(id => !unlockedIds.has(id));
     const amount = parseFloat(costOf(newIds).toFixed(2));
     doUnlock(newIds, amount);
@@ -998,6 +999,7 @@ export default function App() {
 
   // Unlock a single step (and its prerequisites)
   const unlockStep = (stepId) => {
+    if (!user) { setShowAuth(true); return; }
     // Resolve prereqs for this single step
     const toAdd = new Set([stepId]);
     let changed = true;
@@ -1019,6 +1021,7 @@ export default function App() {
 
   // Unlock ALL remaining locked steps
   const unlockAll = () => {
+    if (!user) { setShowAuth(true); return; }
     const newIds = allLockedPaid.map(s => s.id);
     const amount = parseFloat(costOf(newIds).toFixed(2));
     doUnlock(newIds, amount);
@@ -1041,6 +1044,7 @@ export default function App() {
   // Unlock an entire tier (all steps not yet owned)
   const unlockTier = (tierId, e) => {
     e.stopPropagation();
+    if (!user) { setShowAuth(true); return; }
     const tierSteps = ALL_STEPS.filter(s => s.tier === tierId && !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0);
     const newIds    = tierSteps.map(s => s.id);
     const amount    = parseFloat(costOf(newIds).toFixed(2));
