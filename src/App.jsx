@@ -880,13 +880,33 @@ export default function App() {
   const [showAuth, setShowAuth]   = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Listen to auth state changes
+  // Listen to auth state changes + reload data after returning from checkout
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthChecked(true);
       if (session?.user) loadUserData(session.user.id);
     });
+    // Reload credits after returning from checkout
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) loadUserData(session.user.id);
+      }, 3000);
+    }
+    // Check if user returned from a successful payment
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success' && window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+      // Reload user data after short delay to let webhook process
+      setTimeout(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) loadUserData(session.user.id);
+        });
+      }, 2000);
+    }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) loadUserData(session.user.id);
@@ -1146,10 +1166,9 @@ export default function App() {
           MASTER CLAUDE
         </span>
         <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-          {credits > 0 && <span style={{ fontSize:"0.62rem", color:"#facc15", letterSpacing:"1px", fontWeight:500 }}>✦ {credits}</span>}
           {pct > 0 && <span style={{ fontSize:"0.57rem", color:"#333", letterSpacing:"1px" }}>{pct}% mastered</span>}
-          <button onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer" }}>
-            Top up
+          <button onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color: credits > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", letterSpacing:"1px", padding:"0.3rem 0.85rem", borderRadius:20, cursor:"pointer" }}>
+            Cr.{credits}
           </button>
           {/* Auth button */}
           {user ? (
@@ -1912,7 +1931,10 @@ export default function App() {
                   <div style={{ fontSize:"0.62rem", color:"#555", marginBottom:"0.75rem" }}>credits</div>
                   <button
                     onClick={() => {
-                      const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}`;
+                      const email = encodeURIComponent(user?.email || '');
+                      const uid = encodeURIComponent(user?.id || '');
+                      const redirect = encodeURIComponent('https://master-claude.vercel.app?checkout=success');
+                      const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}?checkout[email]=${email}&checkout[custom][user_id]=${uid}&checkout[redirect_url]=${redirect}`;
                       window.open(url, '_blank');
                     }}
                     style={{ background: pack.popular ? "linear-gradient(135deg,#facc15,#f97316)" : "#111", border:`1px solid ${pack.popular ? "#facc1544" : "#2a2a2a"}`, color: pack.popular ? "#000" : "#888", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", fontWeight:500, padding:"0.55rem 0", width:"100%", borderRadius:20, cursor:"pointer", transition:"all 0.2s", letterSpacing:"1px" }}>
