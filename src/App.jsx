@@ -1539,7 +1539,7 @@ export default function App() {
                     })}
                     <div style={{ display:"flex", justifyContent:"space-between", paddingTop:"0.6rem" }}>
                       <span style={{ fontSize:"0.68rem", color:"#666" }}>Total</span>
-                      <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.4rem", color:topTierColor, letterSpacing:"1px" }}>${recs.total.toFixed(2)}</span>
+                      <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.4rem", color:topTierColor, letterSpacing:"1px" }}>✦ {recs.total}</span>
                     </div>
                   </div>
 
@@ -1620,7 +1620,7 @@ export default function App() {
         const packAmt     = Math.round(costOf(packStepIds));
 
         const allRemIds   = ALL_STEPS.filter(s => !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0).map(s=>s.id);
-        const allRemAmt   = Math.round(costOf(allRemIds));
+        const allRemAmt   = Math.min(1500, Math.round(costOf(allRemIds)));
         const alreadyPaidAmt = Math.round(1500 - allRemAmt);
 
         const options = [
@@ -1631,7 +1631,8 @@ export default function App() {
             price: tierAmt,
             color: tm.color,
             action: () => { unlockTier(tierId, { stopPropagation:()=>{} }); },
-            cta:`Unlock ${tm.label} Only`,
+            cta:`Unlock ${tm.label}`,
+          
           },
           {
             key:"pack",
@@ -1644,6 +1645,7 @@ export default function App() {
               doUnlock(newIds, packAmt);
             },
             cta:`Unlock ${packLabel}`,
+          
           },
           {
             key:"all",
@@ -1653,7 +1655,7 @@ export default function App() {
             color: "#e0e0e0",
             badge: alreadyPaidAmt > 0 ? `-✦ ${alreadyPaidAmt} already applied` : null,
             action: unlockAll,
-            cta:"Get Full Access — ✦ 1500",
+            cta:"Get Full Access",
           },
         ].filter(o => o.price > 0);
 
@@ -1718,7 +1720,7 @@ export default function App() {
                       padding:"0.7rem",
                       width:"100%",
                     }}>
-                    {opt.cta} — ✦ {opt.price}
+                    {opt.cta}
                   </button>
                 </div>
               ))}
@@ -1760,7 +1762,7 @@ export default function App() {
 
         // "Unlock everything" option
         const remainingAll  = allLockedPaid.map(s => s.id);
-        const remainingAmt  = Math.round(costOf(remainingAll));
+        const remainingAmt  = Math.min(1500, Math.round(costOf(remainingAll)));
 
         return (
           <div className="overlay" onClick={closeModal}>
@@ -1808,7 +1810,7 @@ export default function App() {
                 )}
                 <button className="cta" onClick={() => unlockStep(step.id)}
                   style={{ background:`linear-gradient(135deg,${tm.color},${tm.color}99)`, color:"#000", fontSize:"0.7rem", padding:"0.7rem", width:"100%" }}>
-                  Unlock {newIds.length} Step{newIds.length > 1 ? "s" : ""} — ✦ {bundleAmt}
+                  Unlock {newIds.length} Step{newIds.length > 1 ? "s" : ""}
                 </button>
               </div>
 
@@ -1831,7 +1833,7 @@ export default function App() {
                     </div>
                     <button className="cta" onClick={(e) => unlockTier(step.tier, e)}
                       style={{ background:`${tm.color}18`, border:`1px solid ${tm.color}44`, color:tm.color, fontSize:"0.68rem", padding:"0.65rem", width:"100%" }}>
-                      Unlock All {tierStepsRemaining.length} Steps in {tm.name} — ✦ {tierAmt}
+                      Unlock All {tierStepsRemaining.length} Steps in {tm.name}
                     </button>
                   </div>
                 );
@@ -1854,7 +1856,7 @@ export default function App() {
                     </div>
                     <button className="cta" onClick={unlockAll}
                       style={{ background:"transparent", border:"1px solid #2a2a2a", color:"#666", fontSize:"0.68rem", padding:"0.65rem", width:"100%" }}>
-                      Unlock All {remainingAll.length} Remaining Steps — ✦ {remainingAmt}
+                      Unlock Everything Remaining
                     </button>
                   </div>
                 );
