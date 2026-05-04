@@ -1761,7 +1761,7 @@ export default function App() {
       {modal === "step" && stepModal && (() => {
         const step         = stepModal;
         const tm           = TIER_META[step.tier];
-        const singlePrice  = parseFloat(stepPrice(step.id).toFixed(2));
+        const singlePrice  = Math.round(stepPrice(step.id));
 
         // Prereqs that will also be unlocked (not yet owned)
         const toAddSet = new Set([step.id]);
@@ -1871,7 +1871,7 @@ export default function App() {
                         <div style={{ fontSize:"0.62rem", color:"#444" }}>{remainingAll.length} steps · all tiers</div>
                       </div>
                       <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", color:"#888", lineHeight:1 }}>
-                        ${remainingAmt.toFixed(2)}
+                        ✦ {remainingAmt}
                       </span>
                     </div>
                     <button className="cta" onClick={unlockAll}
