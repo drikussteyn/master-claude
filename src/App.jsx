@@ -1001,10 +1001,15 @@ export default function App() {
   // Open Lemon Squeezy checkout
   const doUnlock = (ids, amount) => {
     if (!user) { setShowAuth(true); return; }
-    const url = getCheckoutUrl(ids);
+    const hasPack2 = ids.some(id => parseInt(id.split(".")[0]) >= 8);
+    const variantId = hasPack2 ? '1608129' : '1608090';
+    const params = new URLSearchParams({
+      'checkout[email]': user?.email || '',
+      'checkout[custom][user_id]': user?.id || '',
+    });
+    const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${variantId}?${params}`;
     closeModal();
-    // Open checkout in same tab so webhook redirect works
-    window.location.href = url;
+    window.open(url, '_blank');
   };
 
   // Local unlock (called after webhook confirms payment)
