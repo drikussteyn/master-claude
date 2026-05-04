@@ -1002,12 +1002,10 @@ export default function App() {
   const doUnlock = (ids, amount) => {
     if (!user) { setShowAuth(true); return; }
     const hasPack2 = ids.some(id => parseInt(id.split(".")[0]) >= 8);
-    const variantId = hasPack2 ? '1608129' : '1608090';
-    const params = new URLSearchParams({
-      'checkout[email]': user?.email || '',
-      'checkout[custom][user_id]': user?.id || '',
-    });
-    const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${variantId}?${params}`;
+    const checkoutId = hasPack2
+      ? '0a56ea97-80b0-4a39-864d-b2a27be528c7'
+      : 'a2434402-0389-40bd-ac27-f44c721ab15d';
+    const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${checkoutId}`;
     closeModal();
     window.open(url, '_blank');
   };
