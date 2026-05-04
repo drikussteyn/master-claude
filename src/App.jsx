@@ -976,8 +976,39 @@ export default function App() {
   const openQuiz = () => { setQIdx(0); setAnswers({}); setModal("quiz"); };
   const closeModal = () => { setModal(false); setStepModal(null); setTierModal(null); };
 
-  // Unlock a set of step IDs and record the amount paid
+  // Lemon Squeezy checkout URLs
+  const LS_ADVANCED = 'https://masterclaude.lemonsqueezy.com/buy/1608090';
+  const LS_EXPERT   = 'https://masterclaude.lemonsqueezy.com/buy/1608129';
+
+  // Determine which pack to charge based on step IDs
+  const getCheckoutUrl = (ids) => {
+    const hasPack2 = ids.some(id => parseInt(id.split(".")[0]) >= 8);
+    const hasPack1 = ids.some(id => { const t = parseInt(id.split(".")[0]); return t >= 3 && t <= 7; });
+    // Build checkout URL with user info so webhook can identify them
+    const params = new URLSearchParams({
+      'checkout[email]': user?.email || '',
+      'checkout[custom][user_id]': user?.id || '',
+    });
+    if (hasPack1 && hasPack2) {
+      // Buying both packs — charge Expert ($10) and then unlock pack1 via webhook too
+      // For now redirect to Expert pack and handle pack1 in webhook
+      return `${LS_EXPERT}?${params}`;
+    }
+    if (hasPack2) return `${LS_EXPERT}?${params}`;
+    return `${LS_ADVANCED}?${params}`;
+  };
+
+  // Open Lemon Squeezy checkout
   const doUnlock = (ids, amount) => {
+    if (!user) { setShowAuth(true); return; }
+    const url = getCheckoutUrl(ids);
+    closeModal();
+    // Open checkout in same tab so webhook redirect works
+    window.location.href = url;
+  };
+
+  // Local unlock (called after webhook confirms payment)
+  const doLocalUnlock = (ids, amount) => {
     setUnlocked(prev => {
       const n = new Set(prev);
       ids.forEach(id => n.add(id));
