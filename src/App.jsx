@@ -493,8 +493,16 @@ const PACK2_TIERS    = [8,9,10];
 // Buying all 40 steps = exactly $15. Personalised path always costs less.
 const PACK1_ACTUAL_STEPS = 25;
 const PACK2_ACTUAL_STEPS = 15;
-const PACK1_PER_STEP = 5  / PACK1_ACTUAL_STEPS;
-const PACK2_PER_STEP = 10 / PACK2_ACTUAL_STEPS;
+// Credit pricing: 1 credit = $0.01
+// Pack 1: $5 = 500 credits / 25 steps = 20 credits per step
+// Pack 2: $10 = 1000 credits / 15 steps = 67 credits per step
+const PACK1_PER_STEP = 20;   // credits
+const PACK2_PER_STEP = 67;   // credits
+const CREDIT_PACKS = [
+  { id: 'credits_100',  credits: 100,  price: 1,  checkoutId: 'dbbdfcfa-46cf-4b7f-9cfb-c71fea6ddfd6' },
+  { id: 'credits_500',  credits: 500,  price: 5,  checkoutId: 'a2434402-0389-40bd-ac27-f44c721ab15d', popular: true },
+  { id: 'credits_1000', credits: 1000, price: 10, checkoutId: '0a56ea97-80b0-4a39-864d-b2a27be528c7' },
+];
 
 function calcPrice(recommendedIds) {
   const byTier = {};
@@ -890,14 +898,14 @@ export default function App() {
   const loadUserData = async (userId) => {
     const { data } = await supabase
       .from('user_progress')
-      .select('unlocked_ids, done_ids, saved_tips, total_paid')
+      .select('unlocked_ids, done_ids, saved_tips, credits')
       .eq('user_id', userId)
       .single();
     if (data) {
       if (data.unlocked_ids) setUnlocked(new Set(data.unlocked_ids));
       if (data.done_ids)     setDone(new Set(data.done_ids));
       if (data.saved_tips)   setSavedTips(new Set(data.saved_tips));
-      if (data.total_paid)   setTotalPaid(data.total_paid);
+      if (data.credits)      setCredits(data.credits);
     }
   };
 
@@ -918,7 +926,8 @@ export default function App() {
   const [answers, setAnswers]     = useState({});
   const [recs, setRecs]               = useState(null);
   const [unlockedIds, setUnlocked]     = useState(new Set());
-  const [totalPaid, setTotalPaid]      = useState(0);       // running total user has paid
+  const [credits, setCredits]          = useState(0);        // learner credit balance
+  const [showTopUp, setShowTopUp]      = useState(false);    // top up credits modal
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
   const [tierModal, setTierModal]      = useState(null);    // locked tier clicked -> tierId
   const [savedTips, setSavedTips]      = useState(() => {
@@ -999,28 +1008,24 @@ export default function App() {
   };
 
   // Open Lemon Squeezy checkout
+  // Spend credits to unlock steps
   const doUnlock = (ids, amount) => {
     if (!user) { setShowAuth(true); return; }
-    const hasPack2 = ids.some(id => parseInt(id.split(".")[0]) >= 8);
-    const checkoutId = hasPack2
-      ? '0a56ea97-80b0-4a39-864d-b2a27be528c7'
-      : 'a2434402-0389-40bd-ac27-f44c721ab15d';
-    const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${checkoutId}`;
-    closeModal();
-    window.open(url, '_blank');
-  };
-
-  // Local unlock (called after webhook confirms payment)
-  const doLocalUnlock = (ids, amount) => {
+    if (credits < amount) {
+      closeModal();
+      setShowTopUp(true);
+      return;
+    }
+    const newCredits = credits - amount;
     setUnlocked(prev => {
       const n = new Set(prev);
       ids.forEach(id => n.add(id));
-      if (user) saveUserData(user.id, { unlocked_ids: [...n], total_paid: totalPaid + amount });
+      if (user) saveUserData(user.id, { unlocked_ids: [...n], credits: newCredits });
       return n;
     });
-    setTotalPaid(prev => prev + amount);
+    setCredits(newCredits);
     closeModal();
-  };
+  }
 
   // Unlock from personalisation result (only charge for steps not already owned)
   const unlockRecs = () => {
@@ -1049,7 +1054,7 @@ export default function App() {
       });
     }
     const newIds = [...toAdd].filter(id => !unlockedIds.has(id) && TIER_META[parseInt(id.split(".")[0])].base > 0);
-    const amount = parseFloat(costOf(newIds).toFixed(2));
+    const amount = Math.round(costOf(newIds));
     doUnlock(newIds, amount);
   };
 
@@ -1081,14 +1086,14 @@ export default function App() {
     if (!user) { setShowAuth(true); return; }
     const tierSteps = ALL_STEPS.filter(s => s.tier === tierId && !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0);
     const newIds    = tierSteps.map(s => s.id);
-    const amount    = parseFloat(costOf(newIds).toFixed(2));
+    const amount    = Math.round(costOf(newIds));
     doUnlock(newIds, amount);
   };
 
   // Price to unlock an entire tier (only unowned steps)
   const tierUnlockPrice = (tierId) => {
     const remaining = ALL_STEPS.filter(s => s.tier === tierId && !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0);
-    return parseFloat(costOf(remaining.map(s => s.id)).toFixed(2));
+    return Math.round(costOf(remaining.map(s => s.id)));
   };
 
   const isStepUnlocked = (step) => {
@@ -1141,7 +1146,11 @@ export default function App() {
           MASTER CLAUDE
         </span>
         <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          {credits > 0 && <span style={{ fontSize:"0.62rem", color:"#facc15", letterSpacing:"1px", fontWeight:500 }}>✦ {credits}</span>}
           {pct > 0 && <span style={{ fontSize:"0.57rem", color:"#333", letterSpacing:"1px" }}>{pct}% mastered</span>}
+          <button onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer" }}>
+            Top up
+          </button>
           {/* Auth button */}
           {user ? (
             <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
@@ -1425,7 +1434,7 @@ export default function App() {
                   {/* Unlock rest — shown inside expanded tier when partially or fully locked */}
                   {!isFree && steps.some(s => !unlockedIds.has(s.id)) && (() => {
                     const lockedSteps = steps.filter(s => !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0);
-                    const restPrice   = parseFloat(costOf(lockedSteps.map(s => s.id)).toFixed(2));
+                    const restPrice   = Math.round(costOf(lockedSteps.map(s => s.id)));
                     return (
                       <div style={{ borderTop:`1px solid ${tm.color}15`, padding:"0.85rem 1.1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.75rem", flexWrap:"wrap", background:"#090909" }}>
                         <div>
@@ -1445,7 +1454,7 @@ export default function App() {
                             padding:"0.45rem 1.1rem",
                             flexShrink:0,
                           }}>
-                          Unlock rest · ${restPrice.toFixed(2)}
+                          Unlock rest · ✦ {restPrice}
                         </button>
                       </div>
                     );
@@ -1506,7 +1515,7 @@ export default function App() {
                     {recs.ids.length} steps recommended for you
                   </h2>
                   <p style={{ fontSize:"0.7rem", color:"#555", lineHeight:1.7, marginBottom:"1.4rem" }}>
-                    Selected from {recs.breakdown.length} tier{recs.breakdown.length > 1 ? "s" : ""} · priced proportionally to what you actually need
+                    Selected from {recs.breakdown.length} tier{recs.breakdown.length > 1 ? "s" : ""} · ✦ {recs.total} credits total
                   </p>
 
                   {/* Breakdown */}
@@ -1523,7 +1532,7 @@ export default function App() {
                           </div>
                           <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
                             <span style={{ fontSize:"0.62rem", color:"#444" }}>{b.count}/{b.of} steps · {pctOfTier}%</span>
-                            <span style={{ fontSize:"0.75rem", color:tm.color, fontWeight:500 }}>${b.subtotal.toFixed(2)}</span>
+                            <span style={{ fontSize:"0.75rem", color:tm.color, fontWeight:500 }}>✦ {b.subtotal}</span>
                           </div>
                         </div>
                       );
@@ -1553,8 +1562,8 @@ export default function App() {
                   {(() => {
                     const alreadyOwned = recs.ids.filter(id => unlockedIds.has(id));
                     const newSteps     = recs.ids.filter(id => !unlockedIds.has(id) && TIER_META[parseInt(id.split(".")[0])].base > 0);
-                    const toPay        = parseFloat(costOf(newSteps).toFixed(2));
-                    const credit       = parseFloat(costOf(alreadyOwned.filter(id => TIER_META[parseInt(id.split(".")[0])].base > 0)) .toFixed(2));
+                    const toPay        = Math.round(costOf(newSteps));
+                    const credit       = Math.round(costOf(alreadyOwned.filter(id => TIER_META[parseInt(id.split(".")[0])].base > 0)));
                     return (
                       <>
                         {alreadyOwned.length > 0 && (
@@ -1563,13 +1572,13 @@ export default function App() {
                               <div style={{ fontSize:"0.62rem", color:topTierColor, marginBottom:"0.2rem" }}>{alreadyOwned.length} steps already unlocked</div>
                               <div style={{ fontSize:"0.58rem", color:"#444" }}>Credit applied to your total</div>
                             </div>
-                            <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.1rem", color:topTierColor }}>-${credit.toFixed(2)}</span>
+                            <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.1rem", color:topTierColor }}>-✦ {credit}</span>
                           </div>
                         )}
                         {newSteps.length > 0 ? (
                           <button className="cta" onClick={unlockRecs}
                             style={{ background:`linear-gradient(135deg,${topTierColor},${topTierColor}99)`, color:"#000", fontSize:"0.73rem", padding:"0.82rem", width:"100%", marginBottom:"0.65rem" }}>
-                            Unlock {newSteps.length} New Steps — ${toPay.toFixed(2)}
+                            Unlock {newSteps.length} New Steps — ✦ {toPay}
                           </button>
                         ) : (
                           <div style={{ background:`${topTierColor}15`, border:`1px solid ${topTierColor}33`, borderRadius:9, padding:"0.8rem", textAlign:"center", marginBottom:"0.65rem" }}>
@@ -1580,7 +1589,7 @@ export default function App() {
                           <button onClick={openQuiz} style={{ background:"none", border:"none", color:"#333", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", cursor:"pointer" }}>
                             ↺ Retake quiz
                           </button>
-                          <span style={{ fontSize:"0.58rem", color:"#2a2a2a", letterSpacing:"1px" }}>Stripe · one-time · instant access</span>
+                          <span style={{ fontSize:"0.58rem", color:"#2a2a2a", letterSpacing:"1px" }}>Credits deducted instantly · no expiry</span>
                         </div>
                       </>
                     );
@@ -1605,14 +1614,14 @@ export default function App() {
         const packLabel = isPack1 ? "Advanced Pack" : "Expert Pack";
 
         // Prices
-        const tierAmt  = parseFloat(costOf(steps.map(s=>s.id)).toFixed(2));
+        const tierAmt  = Math.round(costOf(steps.map(s=>s.id)));
 
         const packStepIds = ALL_STEPS.filter(s => packTiers.includes(s.tier) && !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0).map(s=>s.id);
-        const packAmt     = parseFloat(costOf(packStepIds).toFixed(2));
+        const packAmt     = Math.round(costOf(packStepIds));
 
         const allRemIds   = ALL_STEPS.filter(s => !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0).map(s=>s.id);
-        const allRemAmt   = parseFloat(costOf(allRemIds).toFixed(2));
-        const alreadyPaidAmt = parseFloat((15 - allRemAmt).toFixed(2));
+        const allRemAmt   = Math.round(costOf(allRemIds));
+        const alreadyPaidAmt = Math.round(1500 - allRemAmt);
 
         const options = [
           {
@@ -1642,9 +1651,9 @@ export default function App() {
             sub:`Complete access · all 10 tiers · 40 steps`,
             price: allRemAmt,
             color: "#e0e0e0",
-            badge: alreadyPaidAmt > 0 ? `-$${alreadyPaidAmt.toFixed(2)} already paid` : null,
+            badge: alreadyPaidAmt > 0 ? `-✦ ${alreadyPaidAmt} already applied` : null,
             action: unlockAll,
-            cta:"Get Full Access — $15 Total",
+            cta:"Get Full Access — ✦ 1500",
           },
         ].filter(o => o.price > 0);
 
@@ -1692,7 +1701,7 @@ export default function App() {
                       )}
                     </div>
                     <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.75rem", color:opt.color, lineHeight:1, flexShrink:0 }}>
-                      ${opt.price.toFixed(2)}
+                      ✦ {opt.price}
                     </span>
                   </div>
 
@@ -1709,7 +1718,7 @@ export default function App() {
                       padding:"0.7rem",
                       width:"100%",
                     }}>
-                    {opt.cta} — ${opt.price.toFixed(2)}
+                    {opt.cta} — ✦ {opt.price}
                   </button>
                 </div>
               ))}
@@ -1747,11 +1756,11 @@ export default function App() {
           });
         }
         const newIds    = [...toAddSet].filter(id => !unlockedIds.has(id) && TIER_META[parseInt(id.split(".")[0])].base > 0);
-        const bundleAmt = parseFloat(costOf(newIds).toFixed(2));
+        const bundleAmt = Math.round(costOf(newIds));
 
         // "Unlock everything" option
         const remainingAll  = allLockedPaid.map(s => s.id);
-        const remainingAmt  = parseFloat(costOf(remainingAll).toFixed(2));
+        const remainingAmt  = Math.round(costOf(remainingAll));
 
         return (
           <div className="overlay" onClick={closeModal}>
@@ -1781,7 +1790,7 @@ export default function App() {
                     )}
                   </div>
                   <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", color:tm.color, lineHeight:1 }}>
-                    ${bundleAmt.toFixed(2)}
+                    ✦ {bundleAmt}
                   </span>
                 </div>
                 {newIds.length > 1 && (
@@ -1799,14 +1808,14 @@ export default function App() {
                 )}
                 <button className="cta" onClick={() => unlockStep(step.id)}
                   style={{ background:`linear-gradient(135deg,${tm.color},${tm.color}99)`, color:"#000", fontSize:"0.7rem", padding:"0.7rem", width:"100%" }}>
-                  Unlock {newIds.length} Step{newIds.length > 1 ? "s" : ""} — ${bundleAmt.toFixed(2)}
+                  Unlock {newIds.length} Step{newIds.length > 1 ? "s" : ""} — ✦ {bundleAmt}
                 </button>
               </div>
 
               {/* Option 2: Unlock entire tier */}
               {(() => {
                 const tierStepsRemaining = ALL_STEPS.filter(s => s.tier === step.tier && !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0);
-                const tierAmt = parseFloat(costOf(tierStepsRemaining.map(s => s.id)).toFixed(2));
+                const tierAmt = Math.round(costOf(tierStepsRemaining.map(s => s.id)));
                 // Only show if there are more steps in the tier beyond what's being unlocked
                 if (tierStepsRemaining.length <= newIds.length) return null;
                 return (
@@ -1817,12 +1826,12 @@ export default function App() {
                         <div style={{ fontSize:"0.62rem", color:"#444" }}>{tierStepsRemaining.length} steps · complete tier access</div>
                       </div>
                       <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", color:tm.color, lineHeight:1 }}>
-                        ${tierAmt.toFixed(2)}
+                        ✦ {tierAmt}
                       </span>
                     </div>
                     <button className="cta" onClick={(e) => unlockTier(step.tier, e)}
                       style={{ background:`${tm.color}18`, border:`1px solid ${tm.color}44`, color:tm.color, fontSize:"0.68rem", padding:"0.65rem", width:"100%" }}>
-                      Unlock All {tierStepsRemaining.length} Steps in {tm.name} — ${tierAmt.toFixed(2)}
+                      Unlock All {tierStepsRemaining.length} Steps in {tm.name} — ✦ {tierAmt}
                     </button>
                   </div>
                 );
@@ -1845,7 +1854,7 @@ export default function App() {
                     </div>
                     <button className="cta" onClick={unlockAll}
                       style={{ background:"transparent", border:"1px solid #2a2a2a", color:"#666", fontSize:"0.68rem", padding:"0.65rem", width:"100%" }}>
-                      Unlock All {remainingAll.length} Remaining Steps — ${remainingAmt.toFixed(2)}
+                      Unlock All {remainingAll.length} Remaining Steps — ✦ {remainingAmt}
                     </button>
                   </div>
                 );
@@ -1867,6 +1876,56 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* ── TOP UP CREDITS MODAL ─────────────────────────────────── */}
+      {showTopUp && (
+        <div style={{ position:"fixed", inset:0, background:"#000000bb", backdropFilter:"blur(6px)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:"1rem" }}
+          onClick={() => setShowTopUp(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background:"#0c0c0c", border:"1px solid #1e1e1e", borderRadius:14, padding:"2rem 1.5rem", width:"100%", maxWidth:420, position:"relative" }}>
+            <button onClick={() => setShowTopUp(false)} style={{ position:"absolute", top:"1rem", right:"1rem", background:"none", border:"none", color:"#444", fontSize:"1rem", cursor:"pointer" }}>×</button>
+
+            {/* Header */}
+            <div style={{ marginBottom:"0.3rem", fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase" }}>Learner Credits</div>
+            <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.6rem", letterSpacing:"2px", color:"#e0e0e0", marginBottom:"0.3rem" }}>Top Up Credits</h2>
+            <p style={{ fontSize:"0.7rem", color:"#555", lineHeight:1.7, marginBottom:"1.5rem" }}>
+              Credits never expire. Use them to unlock any step, tier, or your personalised path.
+              {credits > 0 && <span style={{ color:"#facc15" }}> You currently have ✦ {credits}.</span>}
+              {credits === 0 && <span style={{ color:"#ff6b6b" }}> You need more credits to unlock steps.</span>}
+            </p>
+
+            {/* 3 equal credit pack cards */}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:"0.65rem", marginBottom:"1.25rem" }}>
+              {CREDIT_PACKS.map(pack => (
+                <div key={pack.id} style={{ position:"relative", background:"#090909", border:`1px solid ${pack.popular ? "#facc1555" : "#1e1e1e"}`, borderRadius:10, padding:"1rem 0.75rem", textAlign:"center", cursor:"pointer", transition:"border-color 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = pack.popular ? "#facc15aa" : "#333"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = pack.popular ? "#facc1555" : "#1e1e1e"}>
+                  {pack.popular && (
+                    <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)", background:"#facc1522", border:"1px solid #facc1544", color:"#facc15", fontSize:"0.48rem", padding:"2px 8px", borderRadius:20, letterSpacing:"1.5px", textTransform:"uppercase", whiteSpace:"nowrap" }}>
+                      Most popular
+                    </div>
+                  )}
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.8rem", color: pack.popular ? "#facc15" : "#e0e0e0", lineHeight:1, marginBottom:"0.2rem" }}>
+                    ✦ {pack.credits}
+                  </div>
+                  <div style={{ fontSize:"0.62rem", color:"#555", marginBottom:"0.75rem" }}>credits</div>
+                  <button
+                    onClick={() => {
+                      const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}`;
+                      window.open(url, '_blank');
+                    }}
+                    style={{ background: pack.popular ? "linear-gradient(135deg,#facc15,#f97316)" : "#111", border:`1px solid ${pack.popular ? "#facc1544" : "#2a2a2a"}`, color: pack.popular ? "#000" : "#888", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", fontWeight:500, padding:"0.55rem 0", width:"100%", borderRadius:20, cursor:"pointer", transition:"all 0.2s", letterSpacing:"1px" }}>
+                    ${pack.price}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ fontSize:"0.6rem", color:"#333", textAlign:"center", letterSpacing:"1px" }}>
+              1 credit = $0.01 · one-time purchase · no subscription
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── AUTH MODAL ───────────────────────────────────────────── */}
       {showAuth && (
