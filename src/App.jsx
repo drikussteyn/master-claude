@@ -888,25 +888,15 @@ export default function App() {
       if (session?.user) loadUserData(session.user.id);
     });
     // Reload credits after returning from checkout
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('checkout') === 'success') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('checkout') === 'success') {
       window.history.replaceState({}, '', window.location.pathname);
       setTimeout(async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) loadUserData(session.user.id);
       }, 3000);
     }
-    // Check if user returned from a successful payment
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success' && window.history.replaceState) {
-      window.history.replaceState({}, '', window.location.pathname);
-      // Reload user data after short delay to let webhook process
-      setTimeout(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) loadUserData(session.user.id);
-        });
-      }, 2000);
-    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) loadUserData(session.user.id);
@@ -1014,17 +1004,17 @@ export default function App() {
     const hasPack2 = ids.some(id => parseInt(id.split(".")[0]) >= 8);
     const hasPack1 = ids.some(id => { const t = parseInt(id.split(".")[0]); return t >= 3 && t <= 7; });
     // Build checkout URL with user info so webhook can identify them
-    const params = new URLSearchParams({
+    const checkoutParams = new URLSearchParams({
       'checkout[email]': user?.email || '',
       'checkout[custom][user_id]': user?.id || '',
     });
     if (hasPack1 && hasPack2) {
       // Buying both packs — charge Expert ($10) and then unlock pack1 via webhook too
       // For now redirect to Expert pack and handle pack1 in webhook
-      return `${LS_EXPERT}?${params}`;
+      return `${LS_EXPERT}?${checkoutParams}`;
     }
-    if (hasPack2) return `${LS_EXPERT}?${params}`;
-    return `${LS_ADVANCED}?${params}`;
+    if (hasPack2) return `${LS_EXPERT}?${checkoutParams}`;
+    return `${LS_ADVANCED}?${checkoutParams}`;
   };
 
   // Open Lemon Squeezy checkout
@@ -2082,4 +2072,3 @@ export default function App() {
     </div>
   );
 }
- 
