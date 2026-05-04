@@ -919,6 +919,12 @@ export default function App() {
     }
   };
 
+  // Manually refresh user data from Supabase
+  const refreshUserData = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) await loadUserData(session.user.id);
+  };
+
   // Save user progress to Supabase whenever state changes
   const saveUserData = async (userId, updates) => {
     await supabase.from('user_progress').upsert({
@@ -931,6 +937,10 @@ export default function App() {
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setCredits(0);
+    setUnlocked(new Set());
+    setDone(new Set());
+    setSavedTips(new Set());
   };
   const [qIdx, setQIdx]           = useState(0);
   const [answers, setAnswers]     = useState({});
@@ -1160,6 +1170,7 @@ export default function App() {
           <button onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color: credits > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", letterSpacing:"1px", padding:"0.3rem 0.85rem", borderRadius:20, cursor:"pointer" }}>
             Cr.{credits}
           </button>
+          {user && <button onClick={refreshUserData} title="Refresh credits" style={{ background:"none", border:"none", color:"#333", fontSize:"0.8rem", cursor:"pointer", padding:"0.2rem", lineHeight:1 }}>↻</button>}
           {/* Auth button */}
           {user ? (
             <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
@@ -1907,7 +1918,15 @@ export default function App() {
             {/* 3 equal credit pack cards */}
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:"0.65rem", marginBottom:"1.25rem" }}>
               {CREDIT_PACKS.map(pack => (
-                <div key={pack.id} style={{ position:"relative", background:"#090909", border:`1px solid ${pack.popular ? "#facc1555" : "#1e1e1e"}`, borderRadius:10, padding:"1rem 0.75rem", textAlign:"center", cursor:"pointer", transition:"border-color 0.2s" }}
+                <div key={pack.id}
+                  onClick={() => {
+                    const email = encodeURIComponent(user?.email || '');
+                    const uid = encodeURIComponent(user?.id || '');
+                    const redirect = encodeURIComponent('https://master-claude.vercel.app?checkout=success');
+                    const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}?checkout[email]=${email}&checkout[custom][user_id]=${uid}&checkout[redirect_url]=${redirect}`;
+                    window.open(url, '_blank');
+                  }}
+                  style={{ position:"relative", background:"#090909", border:`1px solid ${pack.popular ? "#facc1555" : "#1e1e1e"}`, borderRadius:10, padding:"1rem 0.75rem", textAlign:"center", cursor:"pointer", transition:"border-color 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = pack.popular ? "#facc15aa" : "#333"}
                   onMouseLeave={e => e.currentTarget.style.borderColor = pack.popular ? "#facc1555" : "#1e1e1e"}>
                   {pack.popular && (
@@ -1920,13 +1939,7 @@ export default function App() {
                   </div>
                   <div style={{ fontSize:"0.62rem", color:"#555", marginBottom:"0.75rem" }}>credits</div>
                   <button
-                    onClick={() => {
-                      const email = encodeURIComponent(user?.email || '');
-                      const uid = encodeURIComponent(user?.id || '');
-                      const redirect = encodeURIComponent('https://master-claude.vercel.app?checkout=success');
-                      const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}?checkout[email]=${email}&checkout[custom][user_id]=${uid}&checkout[redirect_url]=${redirect}`;
-                      window.open(url, '_blank');
-                    }}
+                    onClick={e => e.stopPropagation()}
                     style={{ background: pack.popular ? "linear-gradient(135deg,#facc15,#f97316)" : "#111", border:`1px solid ${pack.popular ? "#facc1544" : "#2a2a2a"}`, color: pack.popular ? "#000" : "#888", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", fontWeight:500, padding:"0.55rem 0", width:"100%", borderRadius:20, cursor:"pointer", transition:"all 0.2s", letterSpacing:"1px" }}>
                     ${pack.price}
                   </button>
