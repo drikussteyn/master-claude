@@ -1673,7 +1673,7 @@ export default function App() {
                             )}
                             {addResultFor === step.id && (
                               <div style={{ marginTop:"0.5rem", background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
-                                <input placeholder={RESULT_PLACEHOLDERS[step.id] || "What did you make with this step?"} value={resultDraft.title}
+                                <input placeholder={`Title (e.g. ${RESULT_PLACEHOLDERS[step.id] || "what did you make?"})`} value={resultDraft.title}
                                   onChange={e => setResultDraft(p => ({...p, title: e.target.value}))}
                                   style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", marginBottom:"0.5rem", outline:"none" }} />
                                 <textarea placeholder="Paste your Claude output here..." value={resultDraft.text}
