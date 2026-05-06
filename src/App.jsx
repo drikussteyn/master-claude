@@ -1280,12 +1280,6 @@ export default function App() {
               style={{ background: showResults ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color: myResults.length > 0 ? "#a78bfa" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative" }}>
               ◈{myResults.length > 0 && <span style={{ position:"absolute", top:-4, right:-4, background:"#a78bfa", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>{myResults.length}</span>}
             </button>
-            {!seenFeatures && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #a78bfa33", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
-                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #a78bfa33" }} />
-                <span style={{ fontSize:"0.55rem", color:"#a78bfa", letterSpacing:"1px" }}>◈ My Results</span>
-              </div>
-            )}
           </div>
           <div style={{ position:"relative" }}>
             <button onClick={() => { setShowBuilder(p => !p); dismissFeatures(); if (!buildIdeas && !buildLoading) generateBuildIdeas(); }}
@@ -1294,12 +1288,6 @@ export default function App() {
               style={{ background: showBuilder ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer" }}>
               ⚡
             </button>
-            {!seenFeatures && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, background:"#111", border:"1px solid #facc1533", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
-                <div style={{ position:"absolute", top:-4, right:8, width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #facc1533" }} />
-                <span style={{ fontSize:"0.55rem", color:"#facc15", letterSpacing:"1px" }}>⚡ What can I build?</span>
-              </div>
-            )}
           </div>
           {/* Auth button */}
           {user ? (
@@ -1329,12 +1317,6 @@ export default function App() {
                 </span>
               )}
             </button>
-            {!seenFeatures && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:0, background:"#111", border:"1px solid #4ade8033", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
-                <div style={{ position:"absolute", top:-4, left:8, width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #4ade8033" }} />
-                <span style={{ fontSize:"0.55rem", color:"#4ade80", letterSpacing:"1px" }}>★ Save tips</span>
-              </div>
-            )}
           </div>
           <button className="cta" onClick={openQuiz}
             style={{ background:"transparent", border:"1px solid #1e1e1e", color:"#666", fontSize:"0.62rem", padding:"0.35rem 0.9rem" }}>
@@ -1342,6 +1324,21 @@ export default function App() {
           </button>
         </div>
       </nav>
+
+      {/* ── FEATURE DISCOVERY BANNER ──────────────────────────────── */}
+      {!seenFeatures && (
+        <div style={{ background:"#0a0a0a", borderBottom:"1px solid #1a1a1a", padding:"0.5rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
+          <div style={{ display:"flex", gap:"0.75rem", flexWrap:"wrap", alignItems:"center" }}>
+            <span style={{ fontSize:"0.6rem", color:"#4ade80", letterSpacing:"1px", whiteSpace:"nowrap" }}>★ save tips</span>
+            <span style={{ fontSize:"0.6rem", color:"#a78bfa", letterSpacing:"1px", whiteSpace:"nowrap" }}>◈ my results</span>
+            <span style={{ fontSize:"0.6rem", color:"#facc15", letterSpacing:"1px", whiteSpace:"nowrap" }}>⚡ what can I build</span>
+          </div>
+          <button onClick={dismissFeatures}
+            style={{ background:"none", border:"1px solid #222", color:"#444", fontFamily:"'DM Mono',monospace", fontSize:"0.55rem", letterSpacing:"1px", padding:"0.2rem 0.6rem", borderRadius:20, cursor:"pointer", whiteSpace:"nowrap", flexShrink:0 }}>
+            got it ×
+          </button>
+        </div>
+      )}
 
       {/* ── HERO ────────────────────────────────────────────────────── */}
       <div style={{ maxWidth:640, margin:"0 auto", padding:"4rem 1.5rem 3rem", textAlign:"center" }}>
