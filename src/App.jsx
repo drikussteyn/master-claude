@@ -1295,8 +1295,8 @@ export default function App() {
               ⚡
             </button>
             {!seenFeatures && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #facc1533", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
-                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #facc1533" }} />
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, background:"#111", border:"1px solid #facc1533", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-4, right:8, width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #facc1533" }} />
                 <span style={{ fontSize:"0.55rem", color:"#facc15", letterSpacing:"1px" }}>⚡ What can I build?</span>
               </div>
             )}
@@ -1330,8 +1330,8 @@ export default function App() {
               )}
             </button>
             {!seenFeatures && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #4ade8033", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
-                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #4ade8033" }} />
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:0, background:"#111", border:"1px solid #4ade8033", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-4, left:8, width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #4ade8033" }} />
                 <span style={{ fontSize:"0.55rem", color:"#4ade80", letterSpacing:"1px" }}>★ Save tips</span>
               </div>
             )}
