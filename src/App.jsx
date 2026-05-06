@@ -925,6 +925,12 @@ export default function App() {
     if (session?.user) await loadUserData(session.user.id);
   };
 
+  // Dismiss first-time feature highlights
+  const dismissFeatures = () => {
+    setSeenFeatures(true);
+    try { localStorage.setItem('mc_seen_features', '1'); } catch {}
+  };
+
   // Copy build idea as prompt
   const copyIdea = (idea) => {
     const text = `Build me: ${idea.title}\n\n${idea.description}\n\nSkills to use: ${(idea.skills_used || []).join(', ')}`;
@@ -1034,6 +1040,9 @@ export default function App() {
   const [buildLoading, setBuildLoading]= useState(false);
   const [seenBuilder, setSeenBuilder]  = useState(() => {
     try { return localStorage.getItem('mc_seen_builder') === '1'; } catch { return false; }
+  });
+  const [seenFeatures, setSeenFeatures] = useState(() => {
+    try { return localStorage.getItem('mc_seen_features') === '1'; } catch { return false; }
   });
   const [copiedIdeaId, setCopiedIdea]  = useState(null);
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
@@ -1240,6 +1249,12 @@ export default function App() {
         .sub-row{padding:0.55rem 1.1rem 0.55rem 2.8rem;border-top:1px solid #0d0d0d;cursor:pointer;transition:background 0.1s;display:flex;align-items:center;gap:0.55rem;}
         .sub-row:hover{background:#0b0b0b;}
         .try-line{font-size:0.75rem;padding:0.38rem 0.65rem;margin:0.22rem 0;border-radius:0 5px 5px 0;line-height:1.55;border-left:2px solid;background:#0c0c0c;color:#c8c8c8;}
+        .pulse-glow-yellow { animation: pulseYellow 2s ease-in-out infinite; }
+        .pulse-glow-purple { animation: pulsePurple 2s ease-in-out infinite; }
+        .pulse-glow-green  { animation: pulseGreen  2s ease-in-out infinite; }
+        @keyframes pulseYellow { 0%,100%{box-shadow:0 0 0 0 #facc1555;} 50%{box-shadow:0 0 0 6px #facc1522;} }
+        @keyframes pulsePurple { 0%,100%{box-shadow:0 0 0 0 #a78bfa55;} 50%{box-shadow:0 0 0 6px #a78bfa22;} }
+        @keyframes pulseGreen  { 0%,100%{box-shadow:0 0 0 0 #4ade8055;} 50%{box-shadow:0 0 0 6px #4ade8022;} }
         .done-btn{font-family:'DM Mono',monospace;font-size:0.63rem;border-radius:3px;padding:3px 10px;cursor:pointer;letter-spacing:1px;transition:all 0.15s;border:1px solid;}
         .pgbar{height:2px;border-radius:2px;background:#111;overflow:hidden;}
         .pgfill{height:100%;border-radius:2px;transition:width 0.4s ease;}
@@ -1259,15 +1274,33 @@ export default function App() {
             Cr.{credits}
           </button>
           {user && <button onClick={refreshUserData} title="Refresh credits" style={{ background:"none", border:"none", color:"#333", fontSize:"0.8rem", cursor:"pointer", padding:"0.2rem", lineHeight:1 }}>↻</button>}
-          <button onClick={() => setShowResults(p => !p)} title="My Results"
-            style={{ background: showResults ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color: myResults.length > 0 ? "#a78bfa" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative" }}>
-            ◈{myResults.length > 0 && <span style={{ position:"absolute", top:-4, right:-4, background:"#a78bfa", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>{myResults.length}</span>}
-          </button>
-          <button onClick={() => { setShowBuilder(p => !p); if (!buildIdeas && !buildLoading) generateBuildIdeas(); }}
-            title="What can I build?"
-            style={{ background: showBuilder ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer" }}>
-            ⚡
-          </button>
+          <div style={{ position:"relative" }}>
+            <button onClick={() => { setShowResults(p => !p); dismissFeatures(); }} title="My Results"
+              className={!seenFeatures ? "pulse-glow-purple" : ""}
+              style={{ background: showResults ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color: myResults.length > 0 ? "#a78bfa" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative" }}>
+              ◈{myResults.length > 0 && <span style={{ position:"absolute", top:-4, right:-4, background:"#a78bfa", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>{myResults.length}</span>}
+            </button>
+            {!seenFeatures && (
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #a78bfa33", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #a78bfa33" }} />
+                <span style={{ fontSize:"0.55rem", color:"#a78bfa", letterSpacing:"1px" }}>◈ My Results</span>
+              </div>
+            )}
+          </div>
+          <div style={{ position:"relative" }}>
+            <button onClick={() => { setShowBuilder(p => !p); dismissFeatures(); if (!buildIdeas && !buildLoading) generateBuildIdeas(); }}
+              title="What can I build?"
+              className={!seenFeatures ? "pulse-glow-yellow" : ""}
+              style={{ background: showBuilder ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer" }}>
+              ⚡
+            </button>
+            {!seenFeatures && (
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #facc1533", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #facc1533" }} />
+                <span style={{ fontSize:"0.55rem", color:"#facc15", letterSpacing:"1px" }}>⚡ What can I build?</span>
+              </div>
+            )}
+          </div>
           {/* Auth button */}
           {user ? (
             <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
@@ -1284,16 +1317,25 @@ export default function App() {
             </button>
           )}
           {/* Saved tips bookmark */}
-          <button onClick={() => setSavedPanel(p => !p)}
-            style={{ background: savedPanel ? "#1e1e1e" : "transparent", border:"1px solid #1e1e1e", color: savedTips.size > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.75rem", padding:"0.32rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative", transition:"all 0.2s" }}
-            title="Saved tips">
-            ★
-            {savedTips.size > 0 && (
-              <span style={{ position:"absolute", top:-4, right:-4, background:"#facc15", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", lineHeight:1 }}>
-                {savedTips.size}
-              </span>
+          <div style={{ position:"relative" }}>
+            <button onClick={() => { setSavedPanel(p => !p); dismissFeatures(); }}
+              className={!seenFeatures ? "pulse-glow-green" : ""}
+              style={{ background: savedPanel ? "#1e1e1e" : "transparent", border:"1px solid #1e1e1e", color: savedTips.size > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.75rem", padding:"0.32rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative", transition:"all 0.2s" }}
+              title="Saved tips">
+              ★
+              {savedTips.size > 0 && (
+                <span style={{ position:"absolute", top:-4, right:-4, background:"#facc15", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", lineHeight:1 }}>
+                  {savedTips.size}
+                </span>
+              )}
+            </button>
+            {!seenFeatures && (
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", left:"50%", transform:"translateX(-50%)", background:"#111", border:"1px solid #4ade8033", borderRadius:6, padding:"4px 8px", whiteSpace:"nowrap", zIndex:999, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-4, left:"50%", transform:"translateX(-50%)", width:0, height:0, borderLeft:"4px solid transparent", borderRight:"4px solid transparent", borderBottom:"4px solid #4ade8033" }} />
+                <span style={{ fontSize:"0.55rem", color:"#4ade80", letterSpacing:"1px" }}>★ Save tips</span>
+              </div>
             )}
-          </button>
+          </div>
           <button className="cta" onClick={openQuiz}
             style={{ background:"transparent", border:"1px solid #1e1e1e", color:"#666", fontSize:"0.62rem", padding:"0.35rem 0.9rem" }}>
             Personalise
