@@ -925,6 +925,77 @@ export default function App() {
     if (session?.user) await loadUserData(session.user.id);
   };
 
+  // Copy to clipboard
+  const copyPrompt = (text, id) => {
+    navigator.clipboard.writeText(text.replace(/^"|"$/g, ''));
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  // Save completion note and mark mastered
+  const saveNoteAndMaster = (stepId, e) => {
+    const note = completionNote[stepId] || '';
+    if (note.trim()) {
+      setSavedNotes(prev => ({ ...prev, [stepId]: note }));
+      if (user) saveUserData(user.id, { completion_notes: { ...savedNotes, [stepId]: note } });
+    }
+    setShowNoteFor(null);
+    toggleDone(stepId, e);
+  };
+
+  // Add a result
+  const addResult = (stepId) => {
+    if (!resultDraft.title.trim() && !resultDraft.text.trim()) return;
+    const result = {
+      id: Date.now(),
+      stepId,
+      title: resultDraft.title || 'Untitled',
+      text: resultDraft.text,
+      date: new Date().toLocaleDateString(),
+    };
+    const newResults = [...myResults, result];
+    setMyResults(newResults);
+    if (user) saveUserData(user.id, { my_results: newResults });
+    setResultDraft({ title:'', text:'' });
+    setAddResultFor(null);
+  };
+
+  // Delete a result
+  const deleteResult = (id) => {
+    const newResults = myResults.filter(r => r.id !== id);
+    setMyResults(newResults);
+    if (user) saveUserData(user.id, { my_results: newResults });
+  };
+
+  // Generate build ideas using Claude API
+  const generateBuildIdeas = async () => {
+    setBuildLoading(true);
+    setBuildIdeas(null);
+    const unlockedSteps = ALL_STEPS.filter(s => isStepUnlocked(s));
+    const stepNames = unlockedSteps.map(s => s.label).join(', ');
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: `I have learned these Claude AI skills: ${stepNames}. Give me exactly 3 specific, practical project ideas I can build using ONLY these skills. Format as JSON array with objects containing "title" (short, punchy), "description" (2 sentences max, specific), "skills_used" (2-3 skill names from my list). Return ONLY valid JSON, no markdown.`
+          }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.[0]?.text || '[]';
+      const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
+      setBuildIdeas(JSON.parse(clean));
+    } catch {
+      setBuildIdeas([{ title: 'Try again', description: 'Could not generate ideas. Please try again.', skills_used: [] }]);
+    }
+    setBuildLoading(false);
+  };
+
   // Save user progress to Supabase whenever state changes
   const saveUserData = async (userId, updates) => {
     await supabase.from('user_progress').upsert({
@@ -948,6 +1019,17 @@ export default function App() {
   const [unlockedIds, setUnlocked]     = useState(new Set());
   const [credits, setCredits]          = useState(0);        // learner credit balance
   const [showTopUp, setShowTopUp]      = useState(false);    // top up credits modal
+  const [copiedId, setCopiedId]        = useState(null);     // which try-these was just copied
+  const [completionNote, setNote]      = useState({});       // stepId -> note text being typed
+  const [showNoteFor, setShowNoteFor]  = useState(null);     // stepId showing note prompt
+  const [savedNotes, setSavedNotes]    = useState({});       // stepId -> saved note
+  const [myResults, setMyResults]      = useState([]);       // array of {id, stepId, title, text, date}
+  const [showResults, setShowResults]  = useState(false);    // my results panel
+  const [addResultFor, setAddResultFor]= useState(null);     // stepId adding result for
+  const [resultDraft, setResultDraft]  = useState({title:'', text:''});
+  const [showBuilder, setShowBuilder]  = useState(false);    // what can I build panel
+  const [buildIdeas, setBuildIdeas]    = useState(null);     // AI generated ideas
+  const [buildLoading, setBuildLoading]= useState(false);
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
   const [tierModal, setTierModal]      = useState(null);    // locked tier clicked -> tierId
   const [savedTips, setSavedTips]      = useState(() => {
@@ -1171,6 +1253,15 @@ export default function App() {
             Cr.{credits}
           </button>
           {user && <button onClick={refreshUserData} title="Refresh credits" style={{ background:"none", border:"none", color:"#333", fontSize:"0.8rem", cursor:"pointer", padding:"0.2rem", lineHeight:1 }}>↻</button>}
+          <button onClick={() => setShowResults(p => !p)} title="My Results"
+            style={{ background: showResults ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color: myResults.length > 0 ? "#a78bfa" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative" }}>
+            ◈{myResults.length > 0 && <span style={{ position:"absolute", top:-4, right:-4, background:"#a78bfa", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>{myResults.length}</span>}
+          </button>
+          <button onClick={() => { setShowBuilder(p => !p); if (!buildIdeas && !buildLoading) generateBuildIdeas(); }}
+            title="What can I build?"
+            style={{ background: showBuilder ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer" }}>
+            ⚡
+          </button>
           {/* Auth button */}
           {user ? (
             <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
@@ -1438,14 +1529,64 @@ export default function App() {
                                 {savedTips.has(step.id) ? "★" : "☆"}
                               </button>
                             </div>
-                            {step.try.map((t,i) => <div key={i} className="try-line" style={{ borderColor:`${tm.color}44` }}>{t}</div>)}
+                            {step.try.map((t,i) => {
+                              const uid = `${step.id}-${i}`;
+                              return (
+                                <div key={i} className="try-line" style={{ borderColor:`${tm.color}44`, position:"relative", paddingRight:"2rem" }}>
+                                  {t}
+                                  <button
+                                    onClick={e => { e.stopPropagation(); copyPrompt(t, uid); }}
+                                    title="Copy prompt"
+                                    style={{ position:"absolute", top:"50%", right:"0.4rem", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"0.7rem", color: copiedId === uid ? tm.color : "#444", transition:"color 0.2s", lineHeight:1, padding:"0.2rem" }}>
+                                    {copiedId === uid ? "✓" : "⎘"}
+                                  </button>
+                                </div>
+                              );
+                            })}
                             <div style={{ background:"#0a0a0a", border:`1px solid ${tm.color}18`, borderRadius:5, padding:"0.48rem 0.65rem", margin:"0.5rem 0", fontSize:"0.68rem", color:"#666", lineHeight:1.65 }}>
                               <span style={{ color:tm.color, fontWeight:500 }}>💡 </span>{step.tip}
                             </div>
-                            <button className="done-btn" onClick={(e) => toggleDone(step.id, e)}
-                              style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
-                              {isDone ? "✓ MASTERED" : "MARK MASTERED"}
-                            </button>
+                            {/* Add result button */}
+                            {addResultFor !== step.id && (
+                              <button onClick={e => { e.stopPropagation(); setAddResultFor(step.id); setResultDraft({title:'',text:''}); }}
+                                style={{ background:"none", border:`1px dashed ${tm.color}44`, color:`${tm.color}99`, fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1.5px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer", marginTop:"0.5rem", width:"100%", textAlign:"center" }}>
+                                + Add My Result
+                              </button>
+                            )}
+                            {addResultFor === step.id && (
+                              <div style={{ marginTop:"0.5rem", background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
+                                <input placeholder="Title (e.g. My first AI email campaign)" value={resultDraft.title}
+                                  onChange={e => setResultDraft(p => ({...p, title: e.target.value}))}
+                                  style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", marginBottom:"0.5rem", outline:"none" }} />
+                                <textarea placeholder="Paste your Claude output here..." value={resultDraft.text}
+                                  onChange={e => setResultDraft(p => ({...p, text: e.target.value}))}
+                                  rows={4} style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", resize:"vertical", outline:"none", marginBottom:"0.5rem" }} />
+                                <div style={{ display:"flex", gap:"0.5rem" }}>
+                                  <button onClick={() => addResult(step.id)} style={{ flex:1, background:`${tm.color}22`, border:`1px solid ${tm.color}44`, color:tm.color, fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", padding:"0.45rem", borderRadius:6, cursor:"pointer" }}>Save Result</button>
+                                  <button onClick={() => setAddResultFor(null)} style={{ background:"none", border:"1px solid #222", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", padding:"0.45rem 0.75rem", borderRadius:6, cursor:"pointer" }}>Cancel</button>
+                                </div>
+                              </div>
+                            )}
+                            {/* Mark mastered with optional note */}
+                            <div style={{ marginTop:"0.65rem" }}>
+                              {showNoteFor === step.id ? (
+                                <div style={{ background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
+                                  <div style={{ fontSize:"0.65rem", color:tm.color, marginBottom:"0.5rem", letterSpacing:"1px" }}>What did you discover? (optional)</div>
+                                  <textarea placeholder="Write one thing you learned or a result you got..."
+                                    value={completionNote[step.id] || ''} onChange={e => setNote(p => ({...p, [step.id]: e.target.value}))}
+                                    rows={3} style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", resize:"none", outline:"none", marginBottom:"0.5rem" }} />
+                                  <div style={{ display:"flex", gap:"0.5rem" }}>
+                                    <button className="done-btn" onClick={e => saveNoteAndMaster(step.id, e)} style={{ flex:1, background:`${tm.color}22`, borderColor:tm.color, color:tm.color }}>Save & Mark Mastered</button>
+                                    <button onClick={e => { setShowNoteFor(null); toggleDone(step.id, e); }} style={{ background:"none", border:"1px solid #222", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", padding:"0.45rem 0.75rem", borderRadius:6, cursor:"pointer" }}>Skip</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button className="done-btn" onClick={e => { e.stopPropagation(); if (!isDone) setShowNoteFor(step.id); else toggleDone(step.id, e); }}
+                                  style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
+                                  {isDone ? "✓ MASTERED" : "MARK MASTERED"}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1963,7 +2104,86 @@ export default function App() {
         />
       )}
 
-      {/* ── SAVED TIPS PANEL ──────────────────────────────────────── */}
+      {/* ── MY RESULTS PANEL ───────────────────────────────────────── */}
+      {showResults && (
+        <div style={{ position:"fixed", inset:0, background:"#000000cc", backdropFilter:"blur(6px)", zIndex:300, display:"flex", alignItems:"stretch", justifyContent:"flex-end" }} onClick={() => setShowResults(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background:"#0a0a0a", borderLeft:"1px solid #1a1a1a", width:"min(360px,100vw)", display:"flex", flexDirection:"column", animation:"slideIn 0.25s ease" }}>
+            <div style={{ padding:"1.1rem 1.2rem", borderBottom:"1px solid #141414", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                <span style={{ color:"#a78bfa", fontSize:"0.85rem" }}>◈</span>
+                <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1rem", letterSpacing:"2px", color:"#e0e0e0" }}>MY RESULTS</span>
+                {myResults.length > 0 && <span style={{ fontSize:"0.58rem", color:"#555", letterSpacing:"1px" }}>{myResults.length} saved</span>}
+              </div>
+              <button onClick={() => setShowResults(false)} style={{ background:"none", border:"none", color:"#444", fontSize:"1rem", cursor:"pointer" }}>×</button>
+            </div>
+            <div style={{ flex:1, overflowY:"auto", padding:"1rem" }}>
+              {myResults.length === 0 ? (
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100%", gap:"0.75rem", paddingBottom:"4rem" }}>
+                  <span style={{ fontSize:"1.8rem", opacity:0.15 }}>◈</span>
+                  <div style={{ fontSize:"0.75rem", color:"#333", textAlign:"center", lineHeight:1.7 }}>
+                    Save your best Claude outputs here.<br/>
+                    <span style={{ fontSize:"0.65rem", color:"#282828" }}>Open any step and click "+ Add My Result".</span>
+                  </div>
+                </div>
+              ) : (
+                myResults.slice().reverse().map(result => {
+                  const step = ALL_STEPS.find(s => s.id === result.stepId);
+                  const tier = step ? TIER_META[step.tier] : null;
+                  return (
+                    <div key={result.id} style={{ background:"#0d0d0d", border:"1px solid #1a1a1a", borderRadius:8, padding:"0.85rem", marginBottom:"0.6rem", position:"relative" }}>
+                      <div style={{ fontSize:"0.58rem", color: tier?.color || "#555", letterSpacing:"1.5px", marginBottom:"0.2rem" }}>
+                        {step?.id} · {step?.label}
+                      </div>
+                      <div style={{ fontSize:"0.8rem", color:"#ccc", fontWeight:500, marginBottom:"0.4rem" }}>{result.title}</div>
+                      <div style={{ fontSize:"0.68rem", color:"#666", lineHeight:1.6, maxHeight:80, overflow:"hidden", WebkitMaskImage:"linear-gradient(to bottom, black 60%, transparent)" }}>{result.text}</div>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.5rem" }}>
+                        <span style={{ fontSize:"0.55rem", color:"#383838" }}>{result.date}</span>
+                        <button onClick={() => deleteResult(result.id)} style={{ background:"none", border:"none", color:"#333", fontSize:"0.7rem", cursor:"pointer" }}>✕</button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── WHAT CAN I BUILD PANEL ──────────────────────────────────── */}
+      {showBuilder && (
+        <div style={{ position:"fixed", inset:0, background:"#000000cc", backdropFilter:"blur(6px)", zIndex:300, display:"flex", alignItems:"flex-start", justifyContent:"center", padding:"2rem 1rem", overflowY:"auto" }} onClick={() => setShowBuilder(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background:"#0a0a0a", border:"1px solid #1e1e1e", borderRadius:14, padding:"1.75rem", width:"100%", maxWidth:440 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.25rem" }}>
+              <div>
+                <div style={{ fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase", marginBottom:"0.2rem" }}>Based on your unlocked steps</div>
+                <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", letterSpacing:"2px", color:"#e0e0e0" }}>What Can I Build?</h2>
+              </div>
+              <button onClick={() => setShowBuilder(false)} style={{ background:"none", border:"none", color:"#444", fontSize:"1rem", cursor:"pointer" }}>×</button>
+            </div>
+            {buildLoading && (
+              <div style={{ textAlign:"center", padding:"2rem", color:"#555", fontSize:"0.75rem", letterSpacing:"1px" }}>Generating ideas...</div>
+            )}
+            {!buildLoading && buildIdeas && buildIdeas.map((idea, i) => (
+              <div key={i} style={{ background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:10, padding:"1rem", marginBottom:"0.75rem" }}>
+                <div style={{ fontSize:"0.85rem", color:"#e0e0e0", fontWeight:500, marginBottom:"0.35rem" }}>{idea.title}</div>
+                <div style={{ fontSize:"0.72rem", color:"#666", lineHeight:1.65, marginBottom:"0.5rem" }}>{idea.description}</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:"0.3rem" }}>
+                  {(idea.skills_used || []).map((s, j) => (
+                    <span key={j} style={{ fontSize:"0.55rem", color:"#888", background:"#111", border:"1px solid #1e1e1e", padding:"2px 7px", borderRadius:20, letterSpacing:"1px" }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {!buildLoading && buildIdeas && (
+              <button onClick={generateBuildIdeas} style={{ width:"100%", background:"none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", letterSpacing:"1.5px", padding:"0.65rem", borderRadius:8, cursor:"pointer", marginTop:"0.25rem" }}>
+                ↻ Generate new ideas
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+            {/* ── SAVED TIPS PANEL ──────────────────────────────────────── */}
       {savedPanel && (
         <div style={{
           position:"fixed", top:0, right:0, bottom:0, width:"min(340px, 100vw)",
