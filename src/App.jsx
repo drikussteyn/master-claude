@@ -874,6 +874,59 @@ function MasteryPanel({ tiers, tierMeta, allSteps, done, pct }) {
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
+const RESULT_PLACEHOLDERS = {
+  "1.1": "Asked Claude to explain blockchain like I'm 5",
+  "1.2": "Brief with my job title got me a perfect cover letter",
+  "1.3": "Claude as a lawyer reviewed my lease agreement",
+  "1.4": "Got my meeting notes as a clean bullet summary",
+  "1.5": "Refined a product tagline through 4 iterations",
+  "2.1": "Built a freelance rate calculator with tax",
+  "2.2": "Created a team trivia quiz about our company history",
+  "2.3": "Generated a downloadable CSV budget spreadsheet",
+  "2.4": "Searched for competitor pricing in real time",
+  "2.5": "Set a reminder system for my weekly review",
+  "3.1": "Used a project to keep my brand voice consistent",
+  "3.2": "Created a project for my client onboarding workflow",
+  "3.3": "Uploaded my brand doc and got on-brand copy instantly",
+  "3.4": "Set instructions so Claude always responds formally",
+  "3.5": "Built a memory profile so Claude knows my business",
+  "4.1": "Generated a full icon set for my app in SVG",
+  "4.2": "Created an infographic explaining our pricing tiers",
+  "4.3": "Built a customer journey flowchart for my team",
+  "4.4": "Mapped the 10 best coffee shops near our office",
+  "4.5": "Wireframed a mobile checkout flow in minutes",
+  "5.1": "Wrote 3 Facebook ad variations for my product launch",
+  "5.2": "Built a 5-email welcome sequence for new subscribers",
+  "5.3": "Got a week of Instagram captions for my food brand",
+  "5.4": "Wrote a short film script from a single premise",
+  "5.5": "Translated my pitch deck into Spanish and French",
+  "6.1": "Described a tool in plain English, got working code",
+  "6.2": "Understood a complex API I had never seen before",
+  "6.3": "Fixed a bug in my Python script in under 2 minutes",
+  "6.4": "Found the key insight hidden in 3 months of sales data",
+  "6.5": "Calculated my break-even point for a new product line",
+  "7.1": "Built an app that saves client notes to a database",
+  "7.2": "Created a multi-screen sales dashboard with charts",
+  "7.3": "Built a crypto tracker pulling live prices from an API",
+  "7.4": "Made an AI writing coach that critiques any draft",
+  "7.5": "Cloned a Notion-style tool for my team's use",
+  "8.1": "Enabled MCP and connected my first tool to Claude",
+  "8.2": "Claude found and summarised my last 10 Drive files",
+  "8.3": "Asked Claude to update my Notion CRM automatically",
+  "8.4": "Claude posted a summary to our team Slack channel",
+  "8.5": "Chained Drive + Notion + Slack in one workflow",
+  "9.1": "Explored Claude Design to mock up a landing page",
+  "9.2": "Designed a full app prototype in under 20 minutes",
+  "9.3": "Created a 12-slide investor pitch deck from scratch",
+  "9.4": "Exported my presentation to PowerPoint for a client",
+  "9.5": "Set up a brand system with colours, fonts and tone",
+  "10.1": "Learned how skills extend what Claude can do",
+  "10.2": "Used a built-in skill to automate my research",
+  "10.3": "Built a custom skill that summarises any PDF I paste",
+  "10.4": "Stacked 3 skills to automate my weekly reporting",
+  "10.5": "Shared my content skill with my whole team",
+};
+
 export default function App() {
   const [modal, setModal]         = useState(false);
   const [user, setUser]           = useState(null);
@@ -1620,7 +1673,7 @@ export default function App() {
                             )}
                             {addResultFor === step.id && (
                               <div style={{ marginTop:"0.5rem", background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
-                                <input placeholder="Title — what did you make with this step?" value={resultDraft.title}
+                                <input placeholder={RESULT_PLACEHOLDERS[step.id] || "What did you make with this step?"} value={resultDraft.title}
                                   onChange={e => setResultDraft(p => ({...p, title: e.target.value}))}
                                   style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", marginBottom:"0.5rem", outline:"none" }} />
                                 <textarea placeholder="Paste your Claude output here..." value={resultDraft.text}
@@ -2410,4 +2463,4 @@ export default function App() {
       </div>
     </div>
   );
-} 
+}
