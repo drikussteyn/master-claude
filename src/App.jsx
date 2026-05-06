@@ -1039,8 +1039,13 @@ export default function App() {
   const generateBuildIdeas = async () => {
     setBuildLoading(true);
     setBuildIdeas(null);
-    const unlockedSteps = ALL_STEPS.filter(s => done.has(s.id));
-    const stepNames = unlockedSteps.map(s => s.label).join(', ');
+    const masteredSteps = ALL_STEPS.filter(s => done.has(s.id));
+    if (masteredSteps.length === 0) {
+      setBuildIdeas([{ title: 'No mastered steps yet', description: 'Mark some steps as Mastered first — then come back here for personalised project ideas based on what you know.', skills_used: [] }]);
+      setBuildLoading(false);
+      return;
+    }
+    const stepNames = masteredSteps.map(s => s.label).join(', ');
     const resultContext = myResults.length > 0
       ? myResults.slice(-6).map(r => r.title).join(', ')
       : '';
@@ -1051,9 +1056,13 @@ export default function App() {
         body: JSON.stringify({ stepNames, resultContext })
       });
       const data = await res.json();
-      setBuildIdeas(data.ideas || []);
+      if (data.error) {
+        setBuildIdeas([{ title: 'API Error', description: data.error, skills_used: [] }]);
+      } else {
+        setBuildIdeas(data.ideas || []);
+      }
     } catch (err) {
-      setBuildIdeas([{ title: 'Error', description: 'Could not generate ideas. Please try again.', skills_used: [] }]);
+      setBuildIdeas([{ title: 'Connection Error', description: err.message || 'Could not reach the server. Please try again.', skills_used: [] }]);
     }
     setBuildLoading(false);
   };
@@ -1099,6 +1108,7 @@ export default function App() {
     try { return localStorage.getItem('mc_seen_features') === '1'; } catch { return false; }
   });
   const [copiedIdeaId, setCopiedIdea]  = useState(null);
+  const [expandedResult, setExpandedResult] = useState(null);
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
   const [tierModal, setTierModal]      = useState(null);    // locked tier clicked -> tierId
   const [savedTips, setSavedTips]      = useState(() => {
@@ -1685,25 +1695,12 @@ export default function App() {
                                 </div>
                               </div>
                             )}
-                            {/* Mark mastered with optional note */}
+                            {/* Mark mastered */}
                             <div style={{ marginTop:"0.65rem" }}>
-                              {showNoteFor === step.id ? (
-                                <div style={{ background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
-                                  <div style={{ fontSize:"0.65rem", color:tm.color, marginBottom:"0.5rem", letterSpacing:"1px" }}>What did you discover? (optional)</div>
-                                  <textarea placeholder="Write one thing you learned or a result you got..."
-                                    value={completionNote[step.id] || ''} onChange={e => setNote(p => ({...p, [step.id]: e.target.value}))}
-                                    rows={3} style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", resize:"none", outline:"none", marginBottom:"0.5rem" }} />
-                                  <div style={{ display:"flex", gap:"0.5rem" }}>
-                                    <button className="done-btn" onClick={e => saveNoteAndMaster(step.id, e)} style={{ flex:1, background:`${tm.color}22`, borderColor:tm.color, color:tm.color }}>Save & Mark Mastered</button>
-                                    <button onClick={e => { setShowNoteFor(null); toggleDone(step.id, e); }} style={{ background:"none", border:"1px solid #222", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", padding:"0.45rem 0.75rem", borderRadius:6, cursor:"pointer" }}>Skip</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button className="done-btn" onClick={e => { e.stopPropagation(); if (!isDone) setShowNoteFor(step.id); else toggleDone(step.id, e); }}
-                                  style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
-                                  {isDone ? "✓ MASTERED" : "MARK MASTERED"}
-                                </button>
-                              )}
+                              <button className="done-btn" onClick={e => { e.stopPropagation(); toggleDone(step.id, e); }}
+                                style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
+                                {isDone ? "✓ MASTERED" : "MARK MASTERED"}
+                              </button>
                             </div>
                           </div>
                         )}
@@ -2258,15 +2255,22 @@ export default function App() {
                   const step = ALL_STEPS.find(s => s.id === result.stepId);
                   const tier = step ? TIER_META[step.tier] : null;
                   return (
-                    <div key={result.id} style={{ background:"#0d0d0d", border:"1px solid #1a1a1a", borderRadius:8, padding:"0.85rem", marginBottom:"0.6rem", position:"relative" }}>
+                    <div key={result.id}
+                      style={{ background:"#0d0d0d", border:`1px solid ${expandedResult === result.id ? (tier?.color+"44" || "#333") : "#1a1a1a"}`, borderRadius:8, padding:"0.85rem", marginBottom:"0.6rem", position:"relative", cursor:"pointer", transition:"border-color 0.2s" }}
+                      onClick={() => setExpandedResult(expandedResult === result.id ? null : result.id)}>
                       <div style={{ fontSize:"0.58rem", color: tier?.color || "#555", letterSpacing:"1.5px", marginBottom:"0.2rem" }}>
                         {step?.id} · {step?.label}
                       </div>
                       <div style={{ fontSize:"0.8rem", color:"#ccc", fontWeight:500, marginBottom:"0.4rem" }}>{result.title}</div>
-                      <div style={{ fontSize:"0.68rem", color:"#666", lineHeight:1.6, maxHeight:80, overflow:"hidden", WebkitMaskImage:"linear-gradient(to bottom, black 60%, transparent)" }}>{result.text}</div>
+                      <div style={{ fontSize:"0.68rem", color:"#666", lineHeight:1.6, maxHeight: expandedResult === result.id ? "none" : 60, overflow:"hidden", WebkitMaskImage: expandedResult === result.id ? "none" : "linear-gradient(to bottom, black 50%, transparent)" }}>
+                        {result.text}
+                      </div>
+                      {expandedResult !== result.id && (
+                        <div style={{ fontSize:"0.55rem", color:"#333", marginTop:"0.3rem", letterSpacing:"1px" }}>tap to expand</div>
+                      )}
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"0.5rem" }}>
                         <span style={{ fontSize:"0.55rem", color:"#383838" }}>{result.date}</span>
-                        <button onClick={() => deleteResult(result.id)} style={{ background:"none", border:"none", color:"#333", fontSize:"0.7rem", cursor:"pointer" }}>✕</button>
+                        <button onClick={e => { e.stopPropagation(); deleteResult(result.id); }} style={{ background:"none", border:"none", color:"#333", fontSize:"0.7rem", cursor:"pointer" }}>✕</button>
                       </div>
                     </div>
                   );
