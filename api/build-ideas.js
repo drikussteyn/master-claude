@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'Missing API key' });
 
   const contextLine = resultContext
-    ? ` Based on what I've been creating: ${resultContext}.`
+    ? ` Based on what I have been creating: ${resultContext}.`
     : '';
 
   try {
@@ -24,14 +24,16 @@ module.exports = async function handler(req, res) {
         max_tokens: 1000,
         messages: [{
           role: 'user',
-          content: `I have mastered these Claude AI skills: ${stepNames}.${contextLine} Give me exactly 3 specific, practical project ideas I can build TODAY using ONLY these skills. Make the ideas relevant to what I've been working on if context is provided. Format as JSON array with objects: "title" (short punchy name, max 6 words), "description" (2 sentences, very specific and actionable), "skills_used" (2-3 skill names from my list). Return ONLY valid JSON array, no markdown.`
+          content: `I have mastered these Claude AI skills: ${stepNames}.${contextLine} Give me exactly 3 specific, practical project ideas I can build TODAY using ONLY these skills. Make the ideas relevant to what I have been working on if context is provided. Return ONLY a raw JSON array with no markdown, no backticks, no code fences. Each object must have: "title" (max 6 words), "description" (2 sentences), "skills_used" (2-3 items from my skill list).`
         }]
       })
     });
 
     const data = await response.json();
-    const text = data.content?.[0]?.text || '[]';
-    const ideas = JSON.parse(text.trim());
+    const raw = data.content?.[0]?.text || '[]';
+    // Strip any markdown code fences
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const ideas = JSON.parse(clean);
     return res.status(200).json({ ideas });
   } catch (err) {
     return res.status(500).json({ error: err.message });
