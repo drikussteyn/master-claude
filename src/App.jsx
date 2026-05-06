@@ -925,6 +925,14 @@ export default function App() {
     if (session?.user) await loadUserData(session.user.id);
   };
 
+  // Copy build idea as prompt
+  const copyIdea = (idea) => {
+    const text = `Build me: ${idea.title}\n\n${idea.description}\n\nSkills to use: ${(idea.skills_used || []).join(', ')}`;
+    navigator.clipboard.writeText(text);
+    setCopiedIdea(idea.title);
+    setTimeout(() => setCopiedIdea(null), 2000);
+  };
+
   // Copy to clipboard
   const copyPrompt = (text, id) => {
     navigator.clipboard.writeText(text.replace(/^"|"$/g, ''));
@@ -967,31 +975,25 @@ export default function App() {
     if (user) saveUserData(user.id, { my_results: newResults });
   };
 
-  // Generate build ideas using Claude API
+  // Generate build ideas via serverless function
   const generateBuildIdeas = async () => {
     setBuildLoading(true);
     setBuildIdeas(null);
-    const unlockedSteps = ALL_STEPS.filter(s => isStepUnlocked(s));
+    const unlockedSteps = ALL_STEPS.filter(s => done.has(s.id));
     const stepNames = unlockedSteps.map(s => s.label).join(', ');
+    const resultContext = myResults.length > 0
+      ? myResults.slice(-6).map(r => r.title).join(', ')
+      : '';
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/build-ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: `I have learned these Claude AI skills: ${stepNames}. Give me exactly 3 specific, practical project ideas I can build using ONLY these skills. Format as JSON array with objects containing "title" (short, punchy), "description" (2 sentences max, specific), "skills_used" (2-3 skill names from my list). Return ONLY valid JSON, no markdown.`
-          }]
-        })
+        body: JSON.stringify({ stepNames, resultContext })
       });
       const data = await res.json();
-      const text = data.content?.[0]?.text || '[]';
-      const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
-      setBuildIdeas(JSON.parse(clean));
-    } catch {
-      setBuildIdeas([{ title: 'Try again', description: 'Could not generate ideas. Please try again.', skills_used: [] }]);
+      setBuildIdeas(data.ideas || []);
+    } catch (err) {
+      setBuildIdeas([{ title: 'Error', description: 'Could not generate ideas. Please try again.', skills_used: [] }]);
     }
     setBuildLoading(false);
   };
@@ -1030,6 +1032,10 @@ export default function App() {
   const [showBuilder, setShowBuilder]  = useState(false);    // what can I build panel
   const [buildIdeas, setBuildIdeas]    = useState(null);     // AI generated ideas
   const [buildLoading, setBuildLoading]= useState(false);
+  const [seenBuilder, setSeenBuilder]  = useState(() => {
+    try { return localStorage.getItem('mc_seen_builder') === '1'; } catch { return false; }
+  });
+  const [copiedIdeaId, setCopiedIdea]  = useState(null);
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
   const [tierModal, setTierModal]      = useState(null);    // locked tier clicked -> tierId
   const [savedTips, setSavedTips]      = useState(() => {
@@ -1501,6 +1507,14 @@ export default function App() {
                             <div style={{ fontSize:"0.72rem", color: unlocked ? "#555" : "#383838", lineHeight:1.6, transition:"color 0.3s" }}>
                               {step.what}
                             </div>
+                            {(() => {
+                              const count = myResults.filter(r => r.stepId === step.id).length;
+                              return count > 0 ? (
+                                <div style={{ marginTop:"0.3rem", fontSize:"0.58rem", color:`${tm.color}99`, letterSpacing:"1px" }}>
+                                  ◈ {count} result{count > 1 ? "s" : ""} saved
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
 
                           {/* Chevron */}
@@ -2118,11 +2132,21 @@ export default function App() {
             </div>
             <div style={{ flex:1, overflowY:"auto", padding:"1rem" }}>
               {myResults.length === 0 ? (
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100%", gap:"0.75rem", paddingBottom:"4rem" }}>
-                  <span style={{ fontSize:"1.8rem", opacity:0.15 }}>◈</span>
-                  <div style={{ fontSize:"0.75rem", color:"#333", textAlign:"center", lineHeight:1.7 }}>
-                    Save your best Claude outputs here.<br/>
-                    <span style={{ fontSize:"0.65rem", color:"#282828" }}>Open any step and click "+ Add My Result".</span>
+                <div style={{ display:"flex", flexDirection:"column", gap:"1rem", paddingTop:"0.5rem" }}>
+                  <div style={{ background:"#0d0d0d", border:"1px solid #a78bfa22", borderRadius:10, padding:"1rem" }}>
+                    <div style={{ fontSize:"0.72rem", color:"#a78bfa", fontWeight:500, marginBottom:"0.5rem" }}>◈ What is this?</div>
+                    <div style={{ fontSize:"0.68rem", color:"#666", lineHeight:1.7 }}>
+                      My Results is your personal gallery of Claude outputs. After using a prompt from any step, save what Claude gave you here — with a title so you can find it later.
+                    </div>
+                  </div>
+                  <div style={{ background:"#0d0d0d", border:"1px solid #facc1522", borderRadius:10, padding:"1rem" }}>
+                    <div style={{ fontSize:"0.72rem", color:"#facc15", fontWeight:500, marginBottom:"0.5rem" }}>⚡ Pro tip</div>
+                    <div style={{ fontSize:"0.68rem", color:"#666", lineHeight:1.7 }}>
+                      The more results you save, the smarter your <strong style={{ color:"#ccc" }}>What Can I Build</strong> ideas become. Claude uses your saved result titles to understand what you actually use it for — and tailors project ideas specifically to your work.
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"center", paddingTop:"0.5rem" }}>
+                    <span style={{ fontSize:"0.65rem", color:"#333" }}>Open any step and click <strong style={{ color:"#888" }}>+ Add My Result</strong> to get started.</span>
                   </div>
                 </div>
               ) : (
@@ -2155,17 +2179,47 @@ export default function App() {
           <div onClick={e => e.stopPropagation()} style={{ background:"#0a0a0a", border:"1px solid #1e1e1e", borderRadius:14, padding:"1.75rem", width:"100%", maxWidth:440 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.25rem" }}>
               <div>
-                <div style={{ fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase", marginBottom:"0.2rem" }}>Based on your unlocked steps</div>
+                <div style={{ fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase", marginBottom:"0.2rem" }}>Based on your mastered steps</div>
                 <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", letterSpacing:"2px", color:"#e0e0e0" }}>What Can I Build?</h2>
               </div>
               <button onClick={() => setShowBuilder(false)} style={{ background:"none", border:"none", color:"#444", fontSize:"1rem", cursor:"pointer" }}>×</button>
             </div>
-            {buildLoading && (
-              <div style={{ textAlign:"center", padding:"2rem", color:"#555", fontSize:"0.75rem", letterSpacing:"1px" }}>Generating ideas...</div>
+
+            {/* One-time intro */}
+            {!seenBuilder && (
+              <div style={{ background:"#0d0d0d", border:"1px solid #facc1522", borderRadius:10, padding:"1rem", marginBottom:"1.25rem" }}>
+                <div style={{ fontSize:"0.75rem", color:"#facc15", fontWeight:500, marginBottom:"0.5rem" }}>⚡ How this works</div>
+                <div style={{ fontSize:"0.7rem", color:"#888", lineHeight:1.7, marginBottom:"0.85rem" }}>
+                  This looks at every step you've marked as <strong style={{ color:"#ccc" }}>Mastered</strong> and generates 3 specific project ideas tailored to exactly what you know. The more you master — and the more results you save — the more personalised your ideas become.
+                  <br/><br/>
+                  <strong style={{ color:"#ccc" }}>What to do with an idea:</strong> copy it, open Claude in a new tab, and paste it in. Your mastered skills are everything you need to build it.
+                </div>
+                <button onClick={() => { setSeenBuilder(true); try { localStorage.setItem('mc_seen_builder', '1'); } catch {} }}
+                  style={{ background:"#facc1522", border:"1px solid #facc1544", color:"#facc15", fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", letterSpacing:"1.5px", padding:"0.5rem 1rem", borderRadius:20, cursor:"pointer", width:"100%" }}>
+                  Got it →
+                </button>
+              </div>
             )}
+
+            {buildLoading && (
+              <div style={{ textAlign:"center", padding:"2rem", color:"#555", fontSize:"0.75rem", letterSpacing:"1px" }}>Generating ideas based on your progress...</div>
+            )}
+
+            {!buildLoading && !buildIdeas && done.size === 0 && (
+              <div style={{ textAlign:"center", padding:"1.5rem", color:"#444", fontSize:"0.72rem", lineHeight:1.7 }}>
+                Mark some steps as <strong style={{ color:"#888" }}>Mastered</strong> first — then come back here for personalised project ideas.
+              </div>
+            )}
+
             {!buildLoading && buildIdeas && buildIdeas.map((idea, i) => (
-              <div key={i} style={{ background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:10, padding:"1rem", marginBottom:"0.75rem" }}>
-                <div style={{ fontSize:"0.85rem", color:"#e0e0e0", fontWeight:500, marginBottom:"0.35rem" }}>{idea.title}</div>
+              <div key={i} style={{ background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:10, padding:"1rem", marginBottom:"0.75rem", position:"relative" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"0.35rem" }}>
+                  <div style={{ fontSize:"0.85rem", color:"#e0e0e0", fontWeight:500, flex:1, paddingRight:"2rem" }}>{idea.title}</div>
+                  <button onClick={() => copyIdea(idea)} title="Copy as prompt"
+                    style={{ position:"absolute", top:"1rem", right:"1rem", background:"none", border:"none", cursor:"pointer", fontSize:"0.75rem", color: copiedIdeaId === idea.title ? "#4ade80" : "#444", transition:"color 0.2s" }}>
+                    {copiedIdeaId === idea.title ? "✓" : "⎘"}
+                  </button>
+                </div>
                 <div style={{ fontSize:"0.72rem", color:"#666", lineHeight:1.65, marginBottom:"0.5rem" }}>{idea.description}</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:"0.3rem" }}>
                   {(idea.skills_used || []).map((s, j) => (
@@ -2174,6 +2228,7 @@ export default function App() {
                 </div>
               </div>
             ))}
+
             {!buildLoading && buildIdeas && (
               <button onClick={generateBuildIdeas} style={{ width:"100%", background:"none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", letterSpacing:"1.5px", padding:"0.65rem", borderRadius:8, cursor:"pointer", marginTop:"0.25rem" }}>
                 ↻ Generate new ideas
