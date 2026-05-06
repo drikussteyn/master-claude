@@ -1250,6 +1250,17 @@ export default function App() {
         .sub-row:hover{background:#0b0b0b;}
         .try-line{font-size:0.75rem;padding:0.38rem 0.65rem;margin:0.22rem 0;border-radius:0 5px 5px 0;line-height:1.55;border-left:2px solid;background:#0c0c0c;color:#c8c8c8;}
         .pulse-glow-yellow { animation: pulseYellow 2s ease-in-out infinite; }
+        @media (max-width: 480px) {
+          .nav-bar { padding: 0.6rem 0.85rem !important; flex-wrap: wrap; gap: 0.4rem; }
+          .nav-logo { font-size: 0.85rem !important; letter-spacing: 2px !important; }
+          .nav-right { gap: 0.4rem !important; flex-wrap: wrap; justify-content: flex-end; }
+          .nav-pct { display: none !important; }
+          .nav-cr-btn { font-size: 0.55rem !important; padding: 0.25rem 0.55rem !important; }
+          .nav-feature-btn { font-size: 0.55rem !important; padding: 0.25rem 0.5rem !important; }
+          .nav-refresh { display: none !important; }
+          .feature-banner { flex-wrap: wrap; gap: 0.35rem !important; }
+          .feature-banner-label { font-size: 0.52rem !important; }
+        }
         .pulse-glow-purple { animation: pulsePurple 2s ease-in-out infinite; }
         .pulse-glow-green  { animation: pulseGreen  2s ease-in-out infinite; }
         @keyframes pulseYellow { 0%,100%{box-shadow:0 0 0 0 #facc1555;} 50%{box-shadow:0 0 0 6px #facc1522;} }
@@ -1264,19 +1275,19 @@ export default function App() {
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────────────────── */}
-      <nav style={{ borderBottom:"1px solid #0d0d0d", padding:"0.85rem 1.5rem", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"#060606", zIndex:100 }}>
-        <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1rem", letterSpacing:"3px", background:"linear-gradient(90deg,#4ade80,#facc15,#f97316,#c084fc)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+      <nav className="nav-bar" style={{ borderBottom:"1px solid #0d0d0d", padding:"0.85rem 1.5rem", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"#060606", zIndex:100 }}>
+        <span className="nav-logo" style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1rem", letterSpacing:"3px", background:"linear-gradient(90deg,#4ade80,#facc15,#f97316,#c084fc)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
           MASTER CLAUDE
         </span>
-        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-          {pct > 0 && <span style={{ fontSize:"0.57rem", color:"#333", letterSpacing:"1px" }}>{pct}% mastered</span>}
-          <button onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color: credits > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", letterSpacing:"1px", padding:"0.3rem 0.85rem", borderRadius:20, cursor:"pointer" }}>
+        <div className="nav-right" style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          {pct > 0 && <span className="nav-pct" style={{ fontSize:"0.57rem", color:"#333", letterSpacing:"1px" }}>{pct}% mastered</span>}
+          <button className="nav-cr-btn" onClick={() => setShowTopUp(true)} style={{ background:"none", border:"1px solid #1e1e1e", color: credits > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", letterSpacing:"1px", padding:"0.3rem 0.85rem", borderRadius:20, cursor:"pointer" }}>
             Cr.{credits}
           </button>
-          {user && <button onClick={refreshUserData} title="Refresh credits" style={{ background:"none", border:"none", color:"#333", fontSize:"0.8rem", cursor:"pointer", padding:"0.2rem", lineHeight:1 }}>↻</button>}
+          {user && <button className="nav-refresh" onClick={refreshUserData} title="Refresh credits" style={{ background:"none", border:"none", color:"#333", fontSize:"0.8rem", cursor:"pointer", padding:"0.2rem", lineHeight:1 }}>↻</button>}
           <div style={{ position:"relative" }}>
             <button onClick={() => { setShowResults(p => !p); dismissFeatures(); }} title="My Results"
-              className={!seenFeatures ? "pulse-glow-purple" : ""}
+              className={`nav-feature-btn${!seenFeatures ? " pulse-glow-purple" : ""}`}
               style={{ background: showResults ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color: myResults.length > 0 ? "#a78bfa" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative" }}>
               ◈{myResults.length > 0 && <span style={{ position:"absolute", top:-4, right:-4, background:"#a78bfa", color:"#000", fontSize:"0.45rem", fontWeight:"bold", width:13, height:13, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>{myResults.length}</span>}
             </button>
@@ -1284,7 +1295,7 @@ export default function App() {
           <div style={{ position:"relative" }}>
             <button onClick={() => { setShowBuilder(p => !p); dismissFeatures(); if (!buildIdeas && !buildLoading) generateBuildIdeas(); }}
               title="What can I build?"
-              className={!seenFeatures ? "pulse-glow-yellow" : ""}
+              className={`nav-feature-btn${!seenFeatures ? " pulse-glow-yellow" : ""}`}
               style={{ background: showBuilder ? "#1e1e1e" : "none", border:"1px solid #1e1e1e", color:"#555", fontFamily:"'DM Mono',monospace", fontSize:"0.6rem", letterSpacing:"1px", padding:"0.3rem 0.7rem", borderRadius:20, cursor:"pointer" }}>
               ⚡
             </button>
@@ -1307,7 +1318,7 @@ export default function App() {
           {/* Saved tips bookmark */}
           <div style={{ position:"relative" }}>
             <button onClick={() => { setSavedPanel(p => !p); dismissFeatures(); }}
-              className={!seenFeatures ? "pulse-glow-green" : ""}
+              className={`nav-feature-btn${!seenFeatures ? " pulse-glow-green" : ""}`}
               style={{ background: savedPanel ? "#1e1e1e" : "transparent", border:"1px solid #1e1e1e", color: savedTips.size > 0 ? "#facc15" : "#555", fontFamily:"'DM Mono',monospace", fontSize:"0.75rem", padding:"0.32rem 0.7rem", borderRadius:20, cursor:"pointer", position:"relative", transition:"all 0.2s" }}
               title="Saved tips">
               ★
@@ -1327,9 +1338,9 @@ export default function App() {
 
       {/* ── FEATURE DISCOVERY BANNER ──────────────────────────────── */}
       {!seenFeatures && (
-        <div style={{ background:"#0a0a0a", borderBottom:"1px solid #1a1a1a", padding:"0.5rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
+        <div className="feature-banner" style={{ background:"#0a0a0a", borderBottom:"1px solid #1a1a1a", padding:"0.5rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
           <div style={{ display:"flex", gap:"0.75rem", flexWrap:"wrap", alignItems:"center" }}>
-            <span style={{ fontSize:"0.6rem", color:"#4ade80", letterSpacing:"1px", whiteSpace:"nowrap" }}>★ save tips</span>
+            <span className="feature-banner-label" style={{ fontSize:"0.6rem", color:"#4ade80", letterSpacing:"1px", whiteSpace:"nowrap" }}>★ save tips</span>
             <span style={{ fontSize:"0.6rem", color:"#a78bfa", letterSpacing:"1px", whiteSpace:"nowrap" }}>◈ my results</span>
             <span style={{ fontSize:"0.6rem", color:"#facc15", letterSpacing:"1px", whiteSpace:"nowrap" }}>⚡ what can I build</span>
           </div>
