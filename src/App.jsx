@@ -499,9 +499,9 @@ const PACK2_ACTUAL_STEPS = 15;
 const PACK1_PER_STEP = 20;   // credits
 const PACK2_PER_STEP = 67;   // credits
 const CREDIT_PACKS = [
-  { id: 'credits_100',  credits: 100,  price: 1,  checkoutId: 'dbbdfcfa-46cf-4b7f-9cfb-c71fea6ddfd6' },
-  { id: 'credits_500',  credits: 500,  price: 5,  checkoutId: 'a2434402-0389-40bd-ac27-f44c721ab15d', popular: true },
-  { id: 'credits_1000', credits: 1000, price: 10, checkoutId: '0a56ea97-80b0-4a39-864d-b2a27be528c7' },
+  { id: 'credits_100',  credits: 100,  price: 1,  checkoutId: '26268180-1977-4a8f-ae33-2962d8dc5983' },
+  { id: 'credits_500',  credits: 500,  price: 5,  checkoutId: '32e0b88a-1adc-4406-a54a-7c628bb78c90', popular: true },
+  { id: 'credits_1000', credits: 1000, price: 10, checkoutId: 'c4f1014a-d365-468a-b1e8-9e9f9c38a8a6' },
 ];
 
 function calcPrice(recommendedIds) {
