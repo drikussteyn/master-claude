@@ -3,8 +3,9 @@ const { createClient } = require('@supabase/supabase-js');
 const SUPABASE_URL = 'https://hcatsoyfuorayhyqwyhd.supabase.co';
 
 const VARIANT_CREDITS = {
-  '1608090': 500,
-  '1608129': 1000,
+  '1646675': 100,
+  '1646704': 500,
+  '1646707': 1000,
 };
 
 const PRODUCT_CREDITS = {
