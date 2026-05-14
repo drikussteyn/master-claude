@@ -2178,7 +2178,7 @@ export default function App() {
                   onClick={() => {
                     const email = encodeURIComponent(user?.email || '');
                     const uid = encodeURIComponent(user?.id || '');
-                    const redirect = encodeURIComponent('https://master-claude.vercel.app?checkout=success');
+                    const redirect = encodeURIComponent('https://master-claude.com?checkout=success');
                     const url = `https://masterclaude.lemonsqueezy.com/checkout/buy/${pack.checkoutId}?checkout[email]=${email}&checkout[custom][user_id]=${uid}&checkout[redirect_url]=${redirect}`;
                     window.open(url, '_blank');
                   }}
