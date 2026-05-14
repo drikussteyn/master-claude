@@ -5,478 +5,477 @@ import AuthModal from './Auth';
 // ─── ALL STEPS ACROSS ALL TIERS ───────────────────────────────────────────────
 // Tiers 1-2 free. Tiers 3-7 base $5. Tiers 8-10 base $10.
 const TIER_META = {
-  1:  { label:"TIER 1",  name:"The Basics",          color:"#4ade80", base:0,  totalSteps:5  },
-  2:  { label:"TIER 2",  name:"Building & Creating", color:"#a3e635", base:0,  totalSteps:5  },
-  3:  { label:"TIER 3",  name:"Projects & Memory",   color:"#facc15", base:5,  totalSteps:10 },
-  4:  { label:"TIER 4",  name:"Design & Visuals",    color:"#fb923c", base:5,  totalSteps:20 },
-  5:  { label:"TIER 5",  name:"Creative & Writing",  color:"#f97316", base:5,  totalSteps:18 },
-  6:  { label:"TIER 6",  name:"Technical Skills",    color:"#ef4444", base:5,  totalSteps:9  },
-  7:  { label:"TIER 7",  name:"Advanced Features",   color:"#f472b6", base:5,  totalSteps:10 },
-  8:  { label:"TIER 8",  name:"Total Integration",   color:"#a78bfa", base:10, totalSteps:10 },
-  9:  { label:"TIER 9",  name:"Claude Design",       color:"#818cf8", base:10, totalSteps:20 },
-  10: { label:"TIER 10", name:"Claude Skills",       color:"#c084fc", base:10, totalSteps:18 },
+  1:  { label:"TIER 1",  name:"The Basics",           color:"#4ade80", base:0,  totalSteps:5 },
+  2:  { label:"TIER 2",  name:"Building & Creating",  color:"#a3e635", base:0,  totalSteps:5 },
+  3:  { label:"TIER 3",  name:"Projects & Memory",    color:"#facc15", base:5,  totalSteps:5 },
+  4:  { label:"TIER 4",  name:"Creative & Writing",   color:"#fb923c", base:5,  totalSteps:5 },
+  5:  { label:"TIER 5",  name:"Technical Skills",     color:"#f97316", base:5,  totalSteps:5 },
+  6:  { label:"TIER 6",  name:"Advanced Building",    color:"#ef4444", base:5,  totalSteps:5 },
+  7:  { label:"TIER 7",  name:"Claude Design",        color:"#f472b6", base:5,  totalSteps:5 },
+  8:  { label:"TIER 8",  name:"Total Integration",    color:"#a78bfa", base:10, totalSteps:5 },
+  9:  { label:"TIER 9",  name:"Claude Skills",        color:"#818cf8", base:10, totalSteps:5 },
+  10: { label:"TIER 10", name:"Claude Ecosystem",     color:"#c084fc", base:10, totalSteps:5 },
 };
 
 const ALL_STEPS = [
-  // TIER 1 (free)
+  // TIER 1 — THE BASICS (free)
   { id:"1.1", tier:1, label:"Simple Conversational Prompts",
     what:"Talk to Claude naturally — describe what you want like you\'d tell a smart friend.",
     try:[
       `"What are 5 ways to make money online?"`,
-      `"I can't sleep and it's been happening for weeks. What are the most common reasons and what actually helps?"`,
-      `"I'm 28, just got my first full-time job, and have no idea what to do with money. Walk me through the basics of personal finance from scratch."`,
+      `"I can\'t sleep and it\'s been happening for weeks. What should I try?"`,
+      `"Explain quantum computing like I\'m 12 years old."`
     ],
     tip:"No need for special phrasing or technical language. Claude understands natural conversation — just say what you need like you\'d say it out loud." },
 
   { id:"1.2", tier:1, label:"Add Context to Your Prompts",
     what:"Tell Claude who you are, what you need, and why — and watch the quality jump.",
     try:[
-      `"Explain compound interest to me like I'm 16."`,
-      `"I'm a freelance graphic designer. What should I charge per hour and how do I justify it to clients?"`,
-      `"I'm a primary school teacher with 24 mixed-ability students and no teaching assistant. Give me a lesson plan for teaching fractions that keeps every student engaged."`,
+      `"I\'m a freelance graphic designer pitching to corporate clients. Write me a short bio for my website."`,
+      `"I\'m 28, work in finance, and want to start investing. What should I know first?"`,
+      `"I run a small bakery and want to grow on Instagram. Give me 3 content ideas for this week."`
     ],
     tip:"Think of it as briefing someone before they help you. The more they know about your situation, the less generic their advice." },
 
   { id:"1.3", tier:1, label:"Assign Claude a Role",
     what:"Tell Claude to act as something and it adopts that expertise entirely.",
     try:[
-      `"Act as a personal trainer. Give me a 4-week beginner workout plan."`,
-      `"You are a financial advisor. I earn $4,000 a month, spend $3,200, and have no savings. Tell me exactly what to do."`,
-      `"Act as the most demanding editor at a major newspaper. I'm going to paste a paragraph and I want you to tear it apart with no filter, then rewrite it the way it should read: [paste text]"`,
+      `"Act as a brutally honest editor and review this email I\'m about to send to my boss."`,
+      `"You are a Michelin-star chef. Give me a dinner recipe using chicken, lemon, and whatever is usually in a pantry."`,
+      `"Act as a career coach. I\'ve been in the same job for 4 years and feel stuck. What should I do?"`
     ],
     tip:"The role changes what Claude prioritises. A coach focuses on mindset. A lawyer focuses on risk. A strategist focuses on leverage. Use roles to get the specific type of thinking you actually need." },
 
   { id:"1.4", tier:1, label:"Control Output Format",
     what:"Specify exactly how you want the answer structured.",
     try:[
-      `"Give me this as a bullet point list."`,
-      `"Summarise what you just said in exactly 3 sentences — one per main point."`,
-      `"Rewrite this as a step-by-step numbered guide written for someone who has never done this before, with a brief explanation after each step: [paste content]"`,
+      `"Give me a comparison of Notion vs Obsidian as a markdown table with columns for price, best use case, and learning curve."`,
+      `"Summarise the French Revolution in exactly 5 bullet points, each under 15 words."`,
+      `"Write a morning routine for productivity. Format it as a numbered checklist with times."`
     ],
-    tip:"Format instructions work mid-conversation too. If Claude just gave you a long answer you don\'t love, just say 'redo that as a table' or 'cut that to 5 bullet points' — no need to start over." },
+    tip:"Format instructions work mid-conversation too. If Claude just gave you a long answer you don\'t love, just say \'redo that as a table\' or \'cut that to 5 bullet points\' — no need to start over." },
 
   { id:"1.5", tier:1, label:"Iterate & Refine",
     what:"Every response is a draft. Push back, redirect, and keep refining.",
     try:[
-      `"Too long. Cut it in half."`,
-      `"That's close but too formal — rewrite it like I'm texting a friend."`,
-      `"You missed the main point. What I actually need is [explain what you really want]. Ignore the previous answer and start fresh with that in mind."`,
+      `"Make it shorter and more punchy — I want it to feel like a tweet, not an essay."`,
+      `"That\'s too formal. Rewrite it like a text message to a friend."`,
+      `"Good start, but add a sense of urgency and a specific call to action at the end."`
     ],
     tip:"You\'re not being difficult by pushing back — you\'re being a good collaborator. Claude doesn\'t get frustrated and it doesn\'t get defensive. Use that." },
 
-  // TIER 2 (free)
+  // TIER 2 — BUILDING & CREATING (free)
   { id:"2.1", tier:2, label:"Build Tools & Calculators",
     what:"Ask Claude to build a functional tool — it appears as a live working app immediately.",
     try:[
-      `"Build me a tip calculator."`,
-      `"Make a unit converter for cooking measurements — cups, grams, ml, and tablespoons."`,
-      `"Build me a monthly budget tracker where I can enter my income and expenses by category and it shows me how much I have left and where I'm overspending."`,
+      `"Build me a BMI calculator with metric and imperial options."`,
+      `"Create a tip calculator that splits the bill between any number of people."`,
+      `"Make a countdown timer to my next holiday — date is December 20th."`
     ],
     tip:"Any calculator you\'ve Googled — Claude can build a custom one in under 30 seconds." },
 
   { id:"2.2", tier:2, label:"Create Games & Quizzes",
     what:"Fully playable games, quizzes, and puzzles built directly in the chat.",
     try:[
-      `"Build a simple quiz with 5 questions about world capitals."`,
-      `"Make a word guessing game where I have 6 attempts and get told if each letter is correct, in the wrong place, or not in the word."`,
-      `"Build a trivia game about 90s music with 10 questions, a score counter, a timer for each question, and a final results screen that tells me which ones I got wrong."`,
+      `"Build me a trivia quiz about 90s pop culture with 10 questions and a score tracker."`,
+      `"Make a word guessing game like Wordle but the theme is countries."`,
+      `"Create a personality quiz: which type of entrepreneur are you?"`
     ],
     tip:"Games are the fastest way to see what Claude can actually build." },
 
   { id:"2.3", tier:2, label:"Generate Real Downloadable Files",
     what:"Claude creates actual .docx, .pptx, .xlsx, and .pdf files — not just text.",
     try:[
-      `"Create a simple one-page CV template as a Word document."`,
-      `"Make a monthly budget spreadsheet in Excel with income, fixed expenses, variable expenses, and a savings total that updates automatically."`,
-      `"Build a 10-slide pitch deck for a meal prep delivery service targeting busy professionals — include a problem slide, solution, market size, business model, and a call to action."`,
+      `"Create a professional invoice template as a Word document with my business name: Bright Studio."`,
+      `"Build a weekly budget spreadsheet in Excel with income, expenses, and auto-calculated savings."`,
+      `"Make a 5-slide pitch deck in PowerPoint for a mobile app that delivers groceries in 15 minutes."`
     ],
     tip:"The files open perfectly in Microsoft Office and Google Workspace." },
 
   { id:"2.4", tier:2, label:"Search the Web in Real Time",
     what:"Claude searches the internet live — not just its trained knowledge.",
     try:[
-      `"What's the latest news in AI today?"`,
-      `"What are the best budget smartphones available right now and how do they compare?"`,
-      `"Research what people are saying about remote work trends in 2025 — pull from multiple sources and give me a balanced summary of what's changing and why."`,
+      `"What\'s the latest news on interest rates in South Africa today?"`,
+      `"Search for the best JavaScript frameworks in 2025 and compare their popularity."`,
+      `"Find the current price of Tesla stock and give me a 3-sentence summary of recent news about them."`
     ],
     tip:"If the information could have changed recently, Claude searches automatically." },
 
-  { id:"2.5", tier:2, label:"Set Reminders & Calendar Events",
-    what:"Claude connects directly to your device\'s calendar and reminders app.",
+  { id:"2.5", tier:2, label:"Generate SVG Icons & Graphics",
+    what:"Ask Claude to create any icon or illustration as a scalable SVG file.",
     try:[
-      `"Remind me to drink water every day at 9am."`,
-      `"Add a recurring team standup to my calendar every Monday and Wednesday at 9:30am."`,
-      `"Set a reminder every Sunday evening at 7pm to review my goals for the week, and add a separate calendar event every Friday at 4pm called 'Weekly Wrap-Up' for the next 3 months."`,
+      `"Create a minimalist SVG icon of a coffee cup — clean lines, suitable for a menu header."`,
+      `"Design an SVG logo mark for a fitness brand called Peak — use geometric shapes only."`,
+      `"Make a set of 3 matching SVG icons: home, settings, and notifications — all in the same style."`
     ],
-    tip:"These fire directly in your device — even when Claude is closed." },
+    tip:"SVGs are infinitely scalable — perfect at any size for websites, presentations, and logos." },
 
-  // TIER 3
+  // TIER 3 — PROJECTS & MEMORY (pack 1)
   { id:"3.1", tier:3, label:"What Projects Are",
     what:"A Project is a persistent workspace where Claude always remembers your context.",
     try:[
-      `"Create a new project for my freelance business."`,
-      `"Set up a project for a mobile app I'm building — include the app name, target audience, and core features."`,
-      `"Create a project for my e-commerce store, include my brand name, target customer, top 3 selling products, tone of voice, and the main problem I'm trying to solve this quarter."`,
+      `"Explain the difference between a regular Claude chat and a Project."`,
+      `"What types of ongoing work benefit most from having a dedicated Project?"`,
+      `"Show me an example of what I would put in a Project for running a small online store."`
     ],
     tip:"Without Projects, every chat starts from scratch. With them, Claude always knows what you\'re working on." },
 
   { id:"3.2", tier:3, label:"Create Your First Project",
     what:"Set up a Project for the most important ongoing thing in your life right now.",
     try:[
-      `"Here's my job title and company — remember this for future chats."`,
-      `"I run a small bakery in Cape Town called Flour & Co. We sell sourdough and pastries to young professionals. Remember everything about my business."`,
-      `"I'm building a SaaS product for HR managers. Here's everything you need to know about the product, the users, the pricing, and where we are in development: [describe it]"`,
+      `"I\'m creating a Project for my freelance copywriting business. What should I include in the setup?"`,
+      `"Help me set up a Project for managing my job search — I\'m applying to marketing roles."`,
+      `"I want a Project for my side hustle selling handmade jewellery. What context should I give Claude?"`
     ],
     tip:"Projects are the single biggest quality-of-life upgrade for regular Claude users." },
 
   { id:"3.3", tier:3, label:"Upload Files to a Project",
     what:"Add documents to a project and Claude references them in every conversation.",
     try:[
-      `"I've uploaded my CV — refer to it when I ask career questions."`,
-      `"Here's my brand guidelines document. Use it whenever I ask you to write copy or create content."`,
-      `"I've uploaded my business plan, three months of sales data, and my competitor research. Based on all of this, what should my top three priorities be right now?"`,
+      `"I uploaded my brand guidelines PDF. Now write me a product description that matches this tone."`,
+      `"I\'ve added my CV to this project. Help me tailor it for a senior marketing manager role."`,
+      `"My uploaded business plan is in this project. What are the 3 weakest sections I should strengthen?"`
     ],
     tip:"Your uploaded files become permanent context. No re-uploading every time." },
 
   { id:"3.4", tier:3, label:"Set Custom Project Instructions",
     what:"Tell Claude exactly how to behave in this specific project — tone, format, rules.",
     try:[
-      `"Always respond in bullet points. Keep answers under 150 words."`,
-      `"I'm building a brand for Gen Z women. Always write in a confident, conversational tone — no corporate language, no filler."`,
-      `"You are working with an early-stage founder who needs blunt, practical advice. No fluff, no hedging. Always end your response with one specific next action I should take today."`,
+      `"My project instructions say: always respond in bullet points, never use jargon, and keep responses under 150 words. Now help me summarise this article."`,
+      `"I\'ve set this project to always write in British English and use a formal tone. Draft a client update email."`,
+      `"My instructions say: act as a startup advisor, always challenge my assumptions, and end every response with one question. Let\'s start."`
     ],
     tip:"Custom instructions override Claude\'s defaults for that project only." },
 
   { id:"3.5", tier:3, label:"Build Your Memory Profile",
     what:"Tell Claude facts about you that persist across all future conversations.",
     try:[
-      `"Remember that I prefer bullet points over long paragraphs."`,
-      `"I'm a UX designer based in London working mostly with fintech clients. Remember this when I ask for design or career advice."`,
-      `"Remember that I run a bootstrapped e-commerce business, I have a $500 monthly marketing budget, I'm targeting South African women aged 25-40, and my biggest current challenge is customer retention."`,
+      `"Remember that I\'m a 34-year-old teacher in Cape Town who runs a small tutoring side business and prefers concise answers."`,
+      `"Store this: I\'m vegetarian, training for a half marathon, and my goal this year is to write a book."`,
+      `"Add to my memory: I prefer bullet points over paragraphs, I\'m a visual learner, and I work best with examples."`
     ],
     tip:"The more Claude knows about you, the more every answer feels written specifically for you." },
 
-  // TIER 4
-  { id:"4.1", tier:4, label:"Generate SVG Icons & Graphics",
-    what:"Ask Claude to create any icon or illustration as a scalable SVG file.",
-    try:[
-      `"Create a simple SVG icon of a house."`,
-      `"Make a set of 3 minimalist SVG icons for a wellness app — a leaf, a water drop, and a sun."`,
-      `"Design a set of 6 SVG icons for a finance dashboard — income, expenses, savings, investments, debt, and net worth. Keep them consistent in style, thin-line, monochrome."`,
-    ],
-    tip:"SVGs are infinitely scalable — perfect at any size for websites, presentations, and logos." },
-
-  { id:"4.2", tier:4, label:"Create Infographics",
-    what:"Turn any data or concept into a visual infographic.",
-    try:[
-      `"Make a simple infographic showing the 3 stages of sleep."`,
-      `"Create an infographic comparing the pros and cons of renting vs buying a home."`,
-      `"Build a visual infographic showing the complete customer journey for an e-commerce brand — from first seeing an ad to becoming a repeat buyer, including the emotions at each stage."`,
-    ],
-    tip:"Infographics are massively shareable on social media. Great for content creation." },
-
-  { id:"4.3", tier:4, label:"Build Flowcharts & Diagrams",
-    what:"Describe any process and Claude maps it into a professional diagram.",
-    try:[
-      `"Create a flowchart for a basic morning routine."`,
-      `"Build a mind map for launching a podcast — include planning, recording, editing, publishing, and promotion."`,
-      `"Map out the complete decision flow for a customer service team handling complaints — from initial contact through escalation levels, resolution options, and follow-up, with decision points at each stage."`,
-    ],
-    tip:"Great for documenting processes, onboarding guides, and making complex logic visual." },
-
-  { id:"4.4", tier:4, label:"Find & Map Real Locations",
-    what:"Claude searches for real places and displays them on an interactive map.",
-    try:[
-      `"Find the top 3 rated coffee shops in Cape Town."`,
-      `"Find 5 highly rated Italian restaurants in Johannesburg and show them on a map."`,
-      `"Plan a full day out in New York City for a first-time visitor — morning, afternoon, and evening activities — map all the stops in logical order so I'm not doubling back across the city."`,
-    ],
-    tip:"Results come from real Google Places data — ratings, addresses, and hours included." },
-
-  { id:"4.5", tier:4, label:"Design UI Mockups & Wireframes",
-    what:"Build full app screens and webpage layouts as working HTML or React.",
-    try:[
-      `"Wireframe a simple login screen for a mobile app."`,
-      `"Design a homepage layout for a premium skincare brand — include a hero section, product highlights, and a testimonials section."`,
-      `"Build a full UI mockup for a personal finance app — include a dashboard with account balances, a spending breakdown by category, a recent transactions list, and a savings goal tracker. Dark theme, modern and clean."`,
-    ],
-    tip:"Hand these off to developers as a starting point, or use them directly." },
-
-  // TIER 5
-  { id:"5.1", tier:5, label:"Write Ad Copy",
+  // TIER 4 — CREATIVE & WRITING (pack 1)
+  { id:"4.1", tier:4, label:"Write Ad Copy",
     what:"Compelling ads for any platform — TikTok, Instagram, Google, Facebook.",
     try:[
-      `"Write a Facebook ad for a gym offering a free trial."`,
-      `"Write 3 Instagram ad captions for a skincare brand launching a new vitamin C serum — target women 25-35."`,
-      `"Write a full TikTok ad script for a $97 online course teaching freelancers how to get their first client — hook in the first 2 seconds, build the problem, present the solution, and end with a clear call to action. Keep it under 45 seconds."`,
+      `"Write a 15-second TikTok ad script for a protein shake targeting gym beginners. Tone: motivating, not bro-culture."`,
+      `"Create 3 Facebook ad variations for a online course that teaches people to build websites. Budget-conscious audience."`,
+      `"Write a Google search ad for a Cape Town plumber. Include a USP and a call to action. Max 90 characters per line."`
     ],
     tip:"Tell Claude the platform, the audience, and the goal. It writes for that exact context." },
 
-  { id:"5.2", tier:5, label:"Write Email Marketing Campaigns",
+  { id:"4.2", tier:4, label:"Write Email Marketing Campaigns",
     what:"Full email sequences — welcome series, product launches, nurture campaigns.",
     try:[
-      `"Write a welcome email for new subscribers to a fitness newsletter."`,
-      `"Write a 3-email sequence for a product launch — a teaser, a launch day email, and a last chance email."`,
-      `"Write a 5-part nurture sequence for a life coaching business targeting burnt-out corporate professionals — start with empathy, build trust across the sequence, introduce the offer naturally by email 4, and close with urgency in email 5."`,
+      `"Write a 3-email welcome sequence for a meal prep delivery service. Day 1: onboarding. Day 3: first order nudge. Day 7: loyalty hook."`,
+      `"Create a product launch email for a new skincare range targeting women over 40. Tone: confident and empowering."`,
+      `"Write a re-engagement email for customers who haven\'t ordered in 60 days. Offer: 20% off. Keep it warm, not desperate."`
     ],
     tip:"Tell Claude the brand voice and it maintains it consistently across the whole sequence." },
 
-  { id:"5.3", tier:5, label:"Social Media Captions & Posts",
+  { id:"4.3", tier:4, label:"Social Media Captions & Posts",
     what:"Platform-specific captions for Instagram, LinkedIn, TikTok, X — in your voice.",
     try:[
-      `"Write an Instagram caption for a photo of a sunset at the beach."`,
-      `"Give me 5 LinkedIn post ideas for a marketing consultant and write the first one in full."`,
-      `"Write a full week of Instagram content for a sustainable fashion brand — 7 captions mixing educational, inspirational, and promotional posts, each with relevant hashtags and a call to action that fits the post type."`,
+      `"Write 5 Instagram captions for a coffee shop in Johannesburg. Mix: one funny, one aesthetic, one behind-the-scenes, one promotional, one community."`,
+      `"Create a LinkedIn post announcing I just got promoted to Head of Marketing. Professional but human. No buzzwords."`,
+      `"Write a Twitter/X thread about why most people fail at building habits. 6 tweets, punchy, contrarian angle."`
     ],
     tip:"Paste 2-3 of your existing posts so Claude can match your exact voice." },
 
-  { id:"5.4", tier:5, label:"Write Short Stories & Scripts",
+  { id:"4.4", tier:4, label:"Write Short Stories & Scripts",
     what:"Fiction, screenplays, YouTube scripts, and podcast outlines.",
     try:[
-      `"Write a short poem about starting over."`,
-      `"Write a 3-minute YouTube script explaining why most people fail at building habits."`,
-      `"Write the first scene of a psychological thriller short story — introduce the main character, establish an unsettling atmosphere, drop one detail that seems small but will matter later, and end on a line that makes the reader need to continue."`,
+      `"Write the opening scene of a psychological thriller set in a Cape Town apartment building. 300 words."`,
+      `"Create a YouTube script intro for a tech review channel — product: new Sony headphones. Hook them in 30 seconds."`,
+      `"Write a 5-minute podcast episode outline on the topic: why most people never finish what they start."`
     ],
     tip:"Give Claude a genre, scenario, and mood. The more specific, the better." },
 
-  { id:"5.5", tier:5, label:"Translate & Learn Languages",
-    what:"Translate anything with cultural context preserved — or practise conversation.",
+  { id:"4.5", tier:4, label:"Create Infographics",
+    what:"Turn any data or concept into a visual infographic anyone can read at a glance.",
     try:[
-      `"Translate 'where is the nearest pharmacy?' into French, Spanish, and Mandarin."`,
-      `"I'm learning Spanish at a beginner level. Teach me 10 essential phrases for ordering food at a restaurant, with pronunciation tips."`,
-      `"Let's have a full conversation in Spanish. I'm at an intermediate level. After every response you give, highlight any grammar mistakes I made, explain why they're wrong, and give me the corrected version before continuing the conversation."`,
+      `"Create an infographic showing the 5 stages of a startup: idea, validation, launch, growth, scale. Each stage gets an icon and 2-line description."`,
+      `"Build an infographic comparing remote vs office work across 6 factors: productivity, cost, collaboration, wellbeing, flexibility, and career growth."`,
+      `"Design an infographic: \'The 7 habits of highly effective morning routines\' — visual timeline format."`
     ],
-    tip:"Claude adapts idioms, tone, and cultural context — far beyond basic translation." },
+    tip:"Infographics are massively shareable on social media. Great for content creators and educators." },
 
-  // TIER 6
-  { id:"6.1", tier:6, label:"Write Code From a Description",
+  // TIER 5 — TECHNICAL SKILLS (pack 1)
+  { id:"5.1", tier:5, label:"Write Code From a Description",
     what:"Describe what you want in plain English and Claude writes the code.",
     try:[
-      `"Write a Python function that takes a list of numbers and returns the average."`,
-      `"Write a JavaScript function that checks if an email address is valid and shows an error message if it isn't."`,
-      `"Write a Python script that reads a CSV file of customer orders, calculates the total revenue per product category, and exports a new CSV showing each category, total units sold, and total revenue sorted from highest to lowest."`,
+      `"Write a Python script that reads a CSV file of sales data and prints the top 5 products by revenue."`,
+      `"Build a JavaScript function that takes a list of names and returns them sorted alphabetically, removing duplicates."`,
+      `"Create an HTML page with a simple contact form — name, email, message — that validates inputs before submission."`
     ],
     tip:"You don\'t need to know what language to use. Just describe what you want it to do." },
 
-  { id:"6.2", tier:6, label:"Explain & Understand Code",
+  { id:"5.2", tier:5, label:"Explain & Understand Code",
     what:"Paste any code and Claude explains exactly what it does — line by line.",
     try:[
-      `"Explain what this function does: [paste code]"`,
-      `"Walk me through this SQL query step by step and explain what each part is doing: [paste query]"`,
-      `"I inherited this Python script from a developer who left the company. Read through the whole thing, explain what it does in plain English, flag anything that looks like it could cause problems, and tell me what I'd need to change if I wanted it to run on a schedule automatically: [paste code]"`,
+      `"Explain this Python function to me like I\'ve never coded before: [paste code]"`,
+      `"Walk me through what this SQL query does, step by step: SELECT * FROM orders WHERE created_at > NOW() - INTERVAL 7 DAY"`,
+      `"I found this JavaScript snippet online. What does it do and are there any risks in using it?"`
     ],
     tip:"Great for learning, inheriting code, or reviewing before running it." },
 
-  { id:"6.3", tier:6, label:"Debug & Fix Broken Code",
+  { id:"5.3", tier:5, label:"Debug & Fix Broken Code",
     what:"Paste broken code and the error — Claude diagnoses and fixes it.",
     try:[
-      `"This code throws an error — fix it: [paste code + error]"`,
-      `"My function runs but keeps returning the wrong value. Here's the code and what it should be returning: [paste code]"`,
-      `"My web app crashes every time a user submits the contact form. Here's the frontend code, the backend route, and the full error log. Find the root cause, fix it, and explain what was going wrong so I understand it for next time: [paste everything]"`,
+      `"Here\'s my Python script and the error I\'m getting: TypeError: \'NoneType\' object is not subscriptable. Fix it: [paste code]"`,
+      `"My CSS navbar looks fine on desktop but breaks on mobile. Here\'s the code — what\'s wrong?"`,
+      `"This JavaScript function should return the sum of an array but it keeps returning NaN. Debug it: [paste code]"`
     ],
     tip:"Always paste both the code AND the error message for fastest diagnosis." },
 
-  { id:"6.4", tier:6, label:"Analyse Data & Spot Insights",
+  { id:"5.4", tier:5, label:"Analyse Data & Spot Insights",
     what:"Upload data and Claude tells you what it means and what to do about it.",
     try:[
-      `"Here's last month's sales data — what stands out? [paste data]"`,
-      `"I have 6 months of website traffic data. Which channels are growing, which are declining, and what should I focus on? [paste data]"`,
-      `"Here are 12 months of revenue, ad spend, customer acquisition cost, and churn rate figures for my business. Identify the 3 most important trends, tell me what's actually driving them, and give me specific recommendations for what to change in the next 90 days: [paste data]"`,
+      `"Here are my last 90 days of website traffic stats. Which pages are underperforming and why? [paste data]"`,
+      `"Analyse this sales CSV and tell me: best day of the week, top product, and any anomalies worth investigating."`,
+      `"I\'ve pasted 6 months of customer reviews. What are the top 3 complaints and the top 3 praise points?"`
     ],
     tip:"Data without interpretation is just numbers. Claude tells you what to act on." },
 
-  { id:"6.5", tier:6, label:"Financial & Math Calculations",
-    what:"Model financial scenarios, solve complex equations, and interpret results.",
+  { id:"5.5", tier:5, label:"Build Flowcharts & Diagrams",
+    what:"Describe any process and Claude maps it into a professional diagram.",
     try:[
-      `"If I save $300 a month for 5 years at 7% annual return, what do I end up with?"`,
-      `"Calculate the break-even point for a business with $8,000 monthly fixed costs, a product that sells for $120, and a cost per unit of $45."`,
-      `"I'm deciding between two business models — one is subscription at $49/month with an expected 3% monthly churn, the other is one-time purchase at $297 with an expected 15% repeat purchase rate annually. Model out the revenue for both over 3 years assuming I acquire 50 new customers per month and tell me which performs better and when the crossover point is."`,
+      `"Create a flowchart for my client onboarding process: inquiry → discovery call → proposal → contract → kickoff → delivery → review."`,
+      `"Build a decision tree diagram for: should I quit my job? Branch based on financial runway, job satisfaction, and alternative income."`,
+      `"Map out the architecture of a basic e-commerce website as a system diagram — frontend, backend, database, and payment gateway."`
     ],
-    tip:"Ask Claude to show every step — helps you understand the method, not just the answer." },
+    tip:"Great for documenting processes, onboarding guides, and making complex logic visual." },
 
-  // TIER 7
-  { id:"7.1", tier:7, label:"Build Apps That Save Data",
+  // TIER 6 — ADVANCED BUILDING (pack 1)
+  { id:"6.1", tier:6, label:"Build Apps That Save Data",
     what:"Claude-built apps that remember your data between sessions — like real software.",
     try:[
-      `"Build a simple note-taking app that saves my notes between sessions."`,
-      `"Create a habit tracker that remembers which habits I completed each day and shows me my streak."`,
-      `"Build a client project tracker where I can add clients, log work sessions with dates and hours, write notes per session, mark projects as active or complete, and see a running total of hours per client — all saved between sessions."`,
+      `"Build a habit tracker app that saves my daily check-ins and shows a streak counter. Data should persist when I close the app."`,
+      `"Create a client notes app where I can add clients, log meetings, and search past notes. Everything saves automatically."`,
+      `"Make a personal finance tracker that stores income and expenses, shows monthly totals, and persists between visits."`
     ],
     tip:"Most AI-built apps forget everything when closed. These actually persist your data." },
 
-  { id:"7.2", tier:7, label:"Multi-Screen Apps & Dashboards",
+  { id:"6.2", tier:6, label:"Multi-Screen Apps & Dashboards",
     what:"Apps with tabs, menus, and multiple pages — full navigation built in.",
     try:[
-      `"Build a dashboard with two tabs — one for income and one for expenses."`,
-      `"Create a recipe app with separate sections for Breakfast, Lunch, Dinner, and a Favourites tab I can save recipes to."`,
-      `"Build a full personal productivity app with four screens — a daily to-do list, a habit tracker, a focus timer with session logging, and a weekly review screen that shows me how many tasks I completed, habits I hit, and hours I focused for that week."`,
+      `"Build a project management dashboard with 3 tabs: Active Projects, Completed, and Archive. Each project has a status and due date."`,
+      `"Create a personal dashboard with 4 sections: Today\'s Tasks, Goals, Journal, and Analytics — all navigable from a sidebar."`,
+      `"Make a recipe app with screens for: Browse Recipes, My Favourites, Meal Planner, and Shopping List."`
     ],
     tip:"Multi-screen apps are real software. Tell Claude the sections you want and it wires up the navigation." },
 
-  { id:"7.3", tier:7, label:"Apps That Pull Live API Data",
+  { id:"6.3", tier:6, label:"Apps That Pull Live API Data",
     what:"Connect any app to a public API for real-time data.",
     try:[
-      `"Build a live weather widget using the OpenWeather API — I'll paste my key: [key]"`,
-      `"Create a dashboard that shows the current price of Bitcoin, Ethereum, and Solana using the free CoinGecko API — refresh every 60 seconds."`,
-      `"Build a live news dashboard using my NewsAPI key that pulls headlines from 3 categories I can choose, lets me filter by keyword, shows each article with a headline, source, and summary, and marks ones I've already read: [key]"`,
+      `"Build a weather dashboard that pulls live data from OpenWeatherMap API for any city I search."`,
+      `"Create a crypto price tracker that fetches live prices from CoinGecko\'s free API every 30 seconds."`,
+      `"Make a news aggregator that pulls headlines from NewsAPI and lets me filter by category."`
     ],
-    tip:"Most public APIs have free tiers. Google '[topic] free API' to find one. Paste the key and Claude builds the whole app around it." },
+    tip:"Most public APIs have free tiers. Google \'[topic] free API\' to find one. Paste the key and Claude builds the whole app around it." },
 
-  { id:"7.4", tier:7, label:"AI-Powered Apps",
+  { id:"6.4", tier:6, label:"AI-Powered Apps",
     what:"Build apps that have their own AI brain inside — they think and respond by themselves.",
     try:[
-      `"Build a chatbot that only talks about fitness and nutrition."`,
-      `"Create an AI writing assistant that rewrites any text I paste in three different tones — professional, casual, and persuasive."`,
-      `"Build an AI-powered interview coach — I tell it the job role and my background, it generates tailored interview questions, I type my answers, and it gives me specific feedback on content, clarity, and what a real interviewer would think, then suggests how to improve each answer."`,
+      `"Build an AI writing coach app where I paste any text and it gives detailed feedback on clarity, tone, and structure."`,
+      `"Create an AI meal planner that asks about my dietary preferences and generates a weekly plan with shopping list."`,
+      `"Make an AI interview prep tool — I paste a job description and it generates 10 tailored interview questions with ideal answer frameworks."`
     ],
     tip:"Once built, these tools run independently. Use them every day without coming back to Claude." },
 
-  { id:"7.5", tier:7, label:"Clone & Customise Any Tool",
+  { id:"6.5", tier:6, label:"Clone & Customise Any Tool",
     what:"Describe a tool you use and Claude builds a custom version tailored exactly to you.",
     try:[
-      `"Build me a simple Pomodoro timer — 25 minutes work, 5 minute break."`,
-      `"Clone the basic functionality of a flashcard app where I can add my own cards and flip through them."`,
-      `"Build a stripped-down Kanban board — three columns for To Do, In Progress, and Done, the ability to add and name cards, drag them between columns, add a short note to each card, and set a due date that turns red when overdue."`,
+      `"Clone the core functionality of Trello for my personal use — just boards, lists, and cards with drag and drop."`,
+      `"Build a custom Notion-style notes app but simplified: just pages, tags, and a search bar. No bloat."`,
+      `"Create my own version of a Pomodoro timer but with custom work/break intervals and a session log."`
     ],
     tip:"Your custom version has no ads, no subscription, no unnecessary features." },
 
-  // TIER 8
+  // TIER 7 — CLAUDE DESIGN (pack 1)
+  { id:"7.1", tier:7, label:"Access & Understand Claude Design",
+    what:"Claude Design is a dedicated product — chat on the left, live canvas on the right.",
+    try:[
+      `"What is Claude Design and how is it different from using Claude normally?"`,
+      `"What types of design work can I do in Claude Design that I can\'t do in a regular chat?"`,
+      `"Walk me through the Claude Design interface — what does each panel do?"`
+    ],
+    tip:"Claude Design is a separate product at claude.ai/design. It\'s built for visual output — not just text." },
+
+  { id:"7.2", tier:7, label:"Design Websites & App Prototypes",
+    what:"Build realistic interactive prototypes without writing any code.",
+    try:[
+      `"Design a landing page for a personal finance app targeting millennials. Dark mode, clean, modern."`,
+      `"Create an interactive prototype for a food delivery app — home screen, menu, cart, and checkout flow."`,
+      `"Build a portfolio website prototype for a UX designer — include a hero, case studies grid, and contact section."`
+    ],
+    tip:"These prototypes are real HTML you can hand directly to a developer or deploy yourself." },
+
+  { id:"7.3", tier:7, label:"Create Pitch Decks & Presentations",
+    what:"From a rough outline to a complete, on-brand slide deck.",
+    try:[
+      `"Create a 10-slide investor pitch deck for a SaaS tool that helps freelancers manage clients. Include: problem, solution, market size, traction, team, and ask."`,
+      `"Build a sales presentation for a digital marketing agency pitching to a retail client. 8 slides, results-focused."`,
+      `"Make a keynote-style presentation about the future of remote work. 6 slides, bold visuals, minimal text."`
+    ],
+    tip:"Claude Design auto-applies your brand colours and fonts if you provide them in the prompt." },
+
+  { id:"7.4", tier:7, label:"Design UI Mockups & Wireframes",
+    what:"Build full app screens and webpage layouts as working HTML or React.",
+    try:[
+      `"Wireframe a mobile banking app — show the dashboard, transaction history, and transfer screens."`,
+      `"Design a high-fidelity mockup for a SaaS analytics dashboard — charts, sidebar navigation, user profile."`,
+      `"Create a wireframe for a checkout flow: cart summary → shipping details → payment → confirmation."`
+    ],
+    tip:"Hand these off to developers as a starting point, or use them directly." },
+
+  { id:"7.5", tier:7, label:"Set Up a Brand Design System",
+    what:"Point Claude at your assets and it builds a system that auto-applies your brand.",
+    try:[
+      `"Here are my brand colours (#1A1A2E, #E94560) and font (Bebas Neue + DM Mono). Build a design system I can reference in future prompts."`,
+      `"Create a brand style guide for a sustainable fashion brand: earthy tones, serif fonts, minimal aesthetic."`,
+      `"Set up a reusable component library for my brand — buttons, cards, headers, and form fields all matching my visual identity."`
+    ],
+    tip:"Save your brand system as a Project instruction so Claude applies it automatically every time." },
+
+  // TIER 8 — TOTAL INTEGRATION / MCP (pack 2)
   { id:"8.1", tier:8, label:"Understand & Enable MCP",
     what:"MCP (Model Context Protocol) lets you plug external services directly into Claude.",
     try:[
-      `"What is MCP and why does it matter?"`,
-      `"Walk me through how to connect my first MCP server in Claude's settings."`,
-      `"I use Notion for project management, Google Drive for documents, and Slack for team communication. Walk me through exactly how to connect all three via MCP, what Claude will be able to do inside each one once connected, and what I should set up first to get the most value immediately."`,
+      `"Explain MCP to me like I\'ve never heard of it — what does it actually do?"`,
+      `"What\'s the difference between using Claude normally and using Claude with MCP enabled?"`,
+      `"Walk me through how to enable my first MCP server in Claude Desktop."`
     ],
     tip:"Without MCP, Claude is a chatbot. With MCP, it operates inside your real tools." },
 
   { id:"8.2", tier:8, label:"Connect Google Drive",
     what:"Claude reads, searches, creates, and edits your Google Drive files.",
     try:[
-      `"Find all documents I created this month in my Drive."`,
-      `"Summarise the most recent strategy document in my Google Drive and pull out any action items."`,
-      `"I have a folder in Google Drive called 'Client Proposals' with 8 documents inside. Read through all of them, identify the common structure across successful ones, flag anything inconsistent, and give me a template I can use for every future proposal based on what's working."`,
+      `"Search my Drive for any documents containing the word \'proposal\' and summarise the most recent one."`,
+      `"Create a new Google Doc called \'Q3 Marketing Plan\' and populate it with a basic structure."`,
+      `"Find my most recent spreadsheet and tell me what data it contains."`
     ],
-    tip:"Your entire Drive becomes searchable and writable through conversation." },
+    tip:"Claude can work across your entire Drive — not just files you manually paste in." },
 
   { id:"8.3", tier:8, label:"Connect Notion",
     what:"Read and write Notion pages, databases, and entries through chat.",
     try:[
-      `"Add a new task to my Notion task database: [task details]"`,
-      `"Find all pages in my Notion workspace tagged as 'In Progress' and give me a summary of where each one stands."`,
-      `"I have a Notion database tracking my content calendar with fields for topic, status, platform, publish date, and performance notes. Analyse everything marked as published, tell me which topics performed best, identify any patterns in what I posted on which platforms, and suggest my next 4 weeks of content based on what's worked."`,
+      `"Add a new entry to my Notion CRM database: Company: Acme Corp, Contact: John Smith, Status: Follow-up needed."`,
+      `"Find all Notion pages tagged \'In Progress\' and summarise what\'s currently active."`,
+      `"Create a new Notion page in my Projects database with a template structure for a new client onboarding."`
     ],
-    tip:"Your entire second brain becomes accessible and editable through conversation." },
+    tip:"Claude can update your Notion databases without you opening Notion at all." },
 
   { id:"8.4", tier:8, label:"Connect Slack",
     what:"Read channels, catch up on messages, and send on your behalf.",
     try:[
-      `"Summarise what was discussed in #general today."`,
-      `"Find the last message from [person] in Slack and draft a reply for me to review."`,
-      `"I've been out of office for 3 days. Go through all the Slack channels I'm a member of, pull out every message that mentions me directly, contains a decision that affects my work, or includes an action item for my team, and give me a prioritised catch-up summary so I know exactly what needs my attention first."`,
+      `"Summarise everything posted in the #general channel today that I might have missed."`,
+      `"Post a message to #team-updates: \'The Q3 report is ready for review. Link in the thread.\'"`,
+      `"Find any messages from the last 48 hours that mention the word \'urgent\' and list them."`
     ],
-    tip:"Great for catching up quickly or drafting messages without switching apps." },
+    tip:"Claude can post, summarise, and search Slack — without you scrolling through channels." },
 
   { id:"8.5", tier:8, label:"Chain Multiple Tools Together",
     what:"Use several connected tools in a single request — the real power of MCP.",
     try:[
-      `"Read my Slack messages from today and add any tasks mentioned to my Notion database."`,
-      `"Check my Google Drive for any documents updated this week and send a summary to my team Slack channel."`,
-      `"Every Monday morning I want you to read last week's completed tasks from my Notion, pull the relevant documents from Google Drive, check Slack for any unresolved discussions linked to those tasks, and compile a weekly progress report formatted with what was completed, what's blocked, and what's happening this week."`,
+      `"Find the latest proposal in my Google Drive, create a Notion entry for it in my CRM, and post a Slack message to #sales saying it\'s ready for review."`,
+      `"Summarise this week\'s Slack highlights, add them to a new Notion page called \'Weekly Digest\', and save it to my Drive."`,
+      `"Check my Notion task list for anything due today, then post a morning briefing to the #daily-standup Slack channel."`
     ],
-    tip:"One sentence triggers actions across 3 different apps. This is automation by conversation." },
+    tip:"This is where MCP becomes genuinely powerful — Claude acts as the coordinator across your entire tool stack." },
 
-  // TIER 9
-  { id:"9.1", tier:9, label:"Access & Understand Claude Design",
-    what:"Claude Design is a dedicated product — chat on the left, live canvas on the right.",
-    try:[
-      `"Open Claude Design and describe what I'm looking at."`,
-      `"I want to design a landing page for my business. Walk me through how to start in Claude Design."`,
-      `"I've never used Claude Design before. I run a small online clothing brand and want to create a full visual presence — a landing page, a pitch deck for potential stockists, and social media templates. Walk me through the best way to approach all three starting from scratch in Claude Design."`,
-    ],
-    tip:"This is a dedicated design workspace — not a chat artifact. It has its own canvas, export tools, and collaboration features." },
-
-  { id:"9.2", tier:9, label:"Design Websites & App Prototypes",
-    what:"Build realistic interactive prototypes without writing any code.",
-    try:[
-      `"Design a simple landing page for a coffee shop."`,
-      `"Prototype a 3-screen onboarding flow for a meditation app — welcome screen, goal selection, and personalisation."`,
-      `"Build a fully interactive prototype for a food delivery app — home feed with restaurant cards, a restaurant detail page with menu items and reviews, a cart screen, and a checkout flow with address and payment fields. Make it feel like a real app a user could test."`,
-    ],
-    tip:"These are clickable prototypes — not static images. Share them for user testing." },
-
-  { id:"9.3", tier:9, label:"Create Pitch Decks & Presentations",
-    what:"From a rough outline to a complete, on-brand slide deck.",
-    try:[
-      `"Create a 5-slide pitch deck for a bakery looking for a small business loan."`,
-      `"Build a 10-slide investor deck for a B2B SaaS startup in the HR space — include problem, solution, market size, product demo slide, traction, and ask."`,
-      `"Design a complete 15-slide Series A pitch deck for a fintech startup targeting unbanked populations in emerging markets — include the problem with real statistics, our solution, competitive landscape, business model, unit economics, go-to-market strategy, team slide, and a funding ask with clear use of funds breakdown."`,
-    ],
-    tip:"Export as PPTX and open directly in PowerPoint or Google Slides. Fully editable." },
-
-  { id:"9.4", tier:9, label:"Export to Canva, PDF & PowerPoint",
-    what:"Everything created exports in multiple formats or goes directly into Canva.",
-    try:[
-      `"Export this design as a PDF."`,
-      `"Send this pitch deck to Canva so my team can edit it."`,
-      `"I've finished designing a full brand kit in Claude Design — logo concepts, a landing page, and a pitch deck. Export the pitch deck as a PowerPoint so I can present it, send the landing page design to Canva so my designer can refine it, and export the brand kit as a PDF I can send to potential partners as a media pack."`,
-    ],
-    tip:"Claude Design generates it, Canva lets your team collaborate and finalise it." },
-
-  { id:"9.5", tier:9, label:"Set Up a Brand Design System",
-    what:"Point Claude at your assets and it builds a system that auto-applies your brand.",
-    try:[
-      `"Set up a basic design system using navy blue and white as my brand colours."`,
-      `"Build a design system for a wellness brand — soft greens, warm neutrals, rounded components, and a friendly sans-serif font."`,
-      `"I'm building a fintech brand targeting young professionals. Set up a complete design system including a primary and secondary colour palette with hex codes, typography hierarchy for headings and body text, button styles for primary and secondary actions, card components, form field styles, spacing rules, and a dark mode variation — then apply it automatically to everything I build going forward."`,
-    ],
-    tip:"Once set up, every future design automatically uses your brand colours, fonts, and components." },
-
-  // TIER 10
-  { id:"10.1", tier:10, label:"What Skills Are & How They Work",
+  // TIER 9 — CLAUDE SKILLS (pack 2)
+  { id:"9.1", tier:9, label:"What Skills Are & How They Work",
     what:"Skills are reusable instruction packs Claude loads automatically when relevant.",
     try:[
-      `"What is a Claude Skill and how is it different from a normal prompt?"`,
-      `"Show me an example of a skill being loaded automatically during a task."`,
-      `"I run a marketing agency and my team uses Claude daily for different tasks — writing copy, analysing data, creating reports, and managing client communications. Explain exactly how Claude Skills works, what we'd need to set up, how it would change the way my team works day to day, and what the biggest efficiency gains would be for a team our size."`,
+      `"Explain what a Claude Skill is and how it differs from a Project instruction."`,
+      `"Give me 3 examples of tasks that would benefit from having a dedicated Skill set up."`,
+      `"What happens when I activate a Skill in Claude — what changes about how it responds?"`
     ],
-    tip:"You don\'t manage skills manually. Claude detects when they apply and uses them silently." },
+    tip:"Think of Skills as pre-loaded expertise. Claude knows exactly how to behave before you say a word." },
 
-  { id:"10.2", tier:10, label:"Use Built-In Skills",
-    what:"Anthropic ships pre-built skills for Excel, PowerPoint, Word, and PDF — activate immediately.",
+  { id:"9.2", tier:9, label:"Use Built-In Skills",
+    what:"Anthropic ships pre-built skills for Excel, PowerPoint, Word, and PDF — activate and use instantly.",
     try:[
-      `"Use the Excel skill to create a simple sales tracker."`,
-      `"Use the PowerPoint skill to build a 6-slide company overview presentation."`,
-      `"I need three things for a client meeting tomorrow — a detailed Excel model tracking their monthly revenue by product line with variance analysis against target, a polished Word document summarising their Q3 performance in a format I can leave behind, and a 10-slide PowerPoint pulling the key numbers into a visual presentation. Use the built-in skills to produce all three."`,
+      `"Activate the Excel skill and help me build a dynamic sales dashboard with charts."`,
+      `"Use the PowerPoint skill to turn this bullet-point outline into a complete 8-slide presentation."`,
+      `"Enable the PDF skill and extract all the key data points from this contract I\'ve uploaded."`
     ],
-    tip:"With the skill active, Claude produces perfectly formatted files with working formulas — not rough drafts." },
+    tip:"Built-in Skills are production-ready from day one. No setup needed beyond activating them." },
 
-  { id:"10.3", tier:10, label:"Build Your First Custom Skill",
+  { id:"9.3", tier:9, label:"Build Your First Custom Skill",
     what:"Create a skill for any workflow you repeat — Claude guides you through building it.",
     try:[
-      `"Help me build a skill for writing client emails in my tone of voice."`,
-      `"I always structure my weekly reports the same way. Help me turn that into a reusable skill so Claude does it automatically every time."`,
-      `"I run a content agency and every piece of content we produce follows a specific process — research phase, angle selection, outline approval, draft, edit, and client review. We also have a strict brand voice guide and a formatting standard for every platform. Help me build a custom skill that captures this entire workflow so any team member can produce on-brand content without me having to brief Claude from scratch every single time."`,
+      `"Help me build a custom skill for writing LinkedIn posts in my voice. I want it to always use short paragraphs, ask a question at the end, and never use the word \'leverage\'."`,
+      `"Create a skill for my weekly client report — it should always pull from the template I\'ve defined and format output in our company style."`,
+      `"Build a customer support skill that always responds empathetically, offers a solution within 2 sentences, and escalates if the issue involves a refund."`
     ],
-    tip:"The skill-creator skill writes the SKILL.md file for you. No manual file editing required." },
+    tip:"Your custom skill is portable. Use it across Projects and share it with teammates." },
 
-  { id:"10.4", tier:10, label:"Stack Multiple Skills Together",
+  { id:"9.4", tier:9, label:"Stack Multiple Skills Together",
     what:"Multiple skills load simultaneously — Claude coordinates them all automatically.",
     try:[
-      `"Use my brand voice skill and my email template skill together to write a client update."`,
-      `"Combine my data analysis skill and my report template skill to turn this spreadsheet into a formatted report: [paste data]"`,
-      `"I have four skills set up — brand voice, content calendar format, platform-specific writing rules, and our client approval checklist. Use all four simultaneously to produce a complete content plan for three different clients, formatted correctly for each platform, written in each client's brand voice, and structured so it's ready to go straight into the approval process."`,
+      `"I have a writing skill and a brand voice skill active. Write a product launch email using both."`,
+      `"Stack my data analysis skill with my presentation skill to turn this CSV into a boardroom-ready deck."`,
+      `"Use my customer support skill and my translation skill together to write a response to a French-speaking customer."`
     ],
-    tip:"Design each skill to do one thing well, then combine them freely. Composability is the real power." },
+    tip:"Skills compound. The more relevant ones you have active, the more precisely Claude performs." },
 
-  { id:"10.5", tier:10, label:"Share Skills With Your Team",
+  { id:"9.5", tier:9, label:"Share Skills With Your Team",
     what:"Skills are portable — share them via version control or direct file sharing.",
     try:[
-      `"How do I share a skill I built with a colleague?"`,
-      `"Walk me through setting up a shared skill library for a small team of 5 people."`,
-      `"I've built a suite of 8 custom skills for my agency covering our entire workflow. Walk me through the best way to package these skills so every team member has access to the same version, how to push updates when our processes change so everyone gets them automatically, how to onboard a new employee so they're using Claude at full capacity from day one, and how to track which skills are being used most so I know where to invest in building more."`,
+      `"Export my brand writing skill so I can share it with my marketing team."`,
+      `"How do I import a skill file that a colleague sent me into my Claude setup?"`,
+      `"Create a standardised onboarding skill for new team members joining my company — covers our tone, tools, and workflow."`
     ],
-    tip:"Team-shared skills capture and distribute institutional knowledge. Consistency across a whole team." },
+    tip:"A shared skill means every person on your team has the same baseline. No more inconsistent outputs." },
+
+  { id:"10.1", tier:10, icon:"⚡", label:"Claude Code",
+    what:"A command-line tool that writes, edits, tests, and runs entire codebases autonomously — far beyond single-file generation.",
+    try:[
+      "\"Set up a complete Node.js REST API with authentication, a database connection, and three endpoints — scaffold everything and explain each file.\"",
+      "\"I have a broken React project. Here's the error log. Diagnose the issue, fix the relevant files, and run the tests to confirm it's resolved.\"",
+      "\"Build me a CLI tool in Python that watches a folder for new CSV files, processes them, and outputs a summary report automatically.\""
+    ],
+    tip:"Claude Code works directly in your terminal — it reads your files, runs commands, and makes changes. Think of it as a developer who has access to your entire project." },
+
+  { id:"10.2", tier:10, icon:"🌐", label:"Claude in Chrome",
+    what:"A browser extension that gives Claude eyes on whatever you're looking at — it sees the page and helps in real time without copy-pasting.",
+    try:[
+      "\"I'm on this product page. Write me a comparison table of this product versus the top 3 competitors based on what you can see right now.\"",
+      "\"I'm looking at my Google Analytics dashboard. What are the 3 most important things I should act on based on what you see?\"",
+      "\"Read this article I have open and give me a 5-bullet briefing I can share in our team Slack in under 60 seconds.\""
+    ],
+    tip:"Claude in Chrome removes the copy-paste step entirely. Whatever you're looking at becomes the context — Claude sees it directly and can act on it immediately." },
+
+  { id:"10.3", tier:10, icon:"🖥️", label:"Cowork",
+    what:"A desktop agent that automates file management and task workflows for non-developers — Claude operates your computer on your behalf.",
+    try:[
+      "\"Watch my Downloads folder. When a new PDF arrives, rename it with today's date and the sender's name, then move it to the right project folder.\"",
+      "\"Go through my Desktop, identify files older than 30 days that haven't been opened, and organise them into an archive folder by month.\"",
+      "\"Every Monday morning, open my weekly template, fill in last week's completed tasks from my notes folder, and save it as this week's review.\""
+    ],
+    tip:"Cowork is built for people who don't write code. You describe the file task in plain English and Claude executes it on your actual machine." },
+
+  { id:"10.4", tier:10, icon:"📊", label:"Claude in Excel",
+    what:"Claude works directly inside your spreadsheet — reading data, writing formulas, building charts, and explaining what everything means.",
+    try:[
+      "\"Look at this sales data spreadsheet. Build me a pivot table showing revenue by region and month, then add a trend line chart automatically.\"",
+      "\"This formula in column G is returning errors. Diagnose it, fix it, and add a comment explaining what the corrected formula does.\"",
+      "\"Take this raw data dump and clean it — remove duplicates, fix date formats, standardise the currency column, and flag any outliers in red.\""
+    ],
+    tip:"Claude in Excel is available as a Microsoft 365 add-in. It reads your entire workbook as context — so it understands relationships between sheets automatically." },
+
+  { id:"10.5", tier:10, icon:"📑", label:"Claude in PowerPoint",
+    what:"Claude builds, edits, and redesigns presentations directly inside PowerPoint — from a brief to a polished deck without leaving the app.",
+    try:[
+      "\"I have a rough 3-slide deck. Expand it to 10 slides with a proper narrative arc, on-brand visuals described in the notes, and a strong closing CTA.\"",
+      "\"Redesign this presentation to match our brand colours (#1A1A2E, #16213E) and make every slide follow a consistent layout with our logo top-right.\"",
+      "\"Turn this meeting transcript into a 6-slide summary presentation I can send to stakeholders who weren't in the room.\""
+    ],
+    tip:"Claude in PowerPoint is a Microsoft 365 add-in. It reads your existing slides as context — so edits feel intentional, not generic." }
 ];
 
 // --- PRICE CALCULATION ---
@@ -497,7 +496,9 @@ const PACK2_ACTUAL_STEPS = 15;
 // Pack 1: $5 = 500 credits / 25 steps = 20 credits per step
 // Pack 2: $10 = 1000 credits / 15 steps = 67 credits per step
 const PACK1_PER_STEP = 20;   // credits
-const PACK2_PER_STEP = 67;   // credits
+const PACK2_PER_STEP = 67;   // credits (15 × 67 = 1005, capped to 1000 when unlocking full pack)
+const PACK1_FULL_COST = 500;  // exact cost for all pack 1 steps
+const PACK2_FULL_COST = 1000; // exact cost for all pack 2 steps
 const CREDIT_PACKS = [
   { id: 'credits_100',  credits: 100,  price: 1,  checkoutId: '26268180-1977-4a8f-ae33-2962d8dc5983' },
   { id: 'credits_500',  credits: 500,  price: 5,  checkoutId: '32e0b88a-1adc-4406-a54a-7c628bb78c90', popular: true },
@@ -542,7 +543,7 @@ function getRecommendations(goal, level, focus) {
     "3.4": ["3.1","3.2"],         // Can't set instructions without a project
     "3.5": [],                    // Memory is standalone
 
-    // Tier 4: Design & Visuals (mostly standalone but ordered logically)
+    // Tier 4: Creative & Writing (standalone, ordered logically)
     "4.2": ["4.1"],               // Infographics build on icons knowledge
     "4.4": ["4.3"],               // Location maps build on diagrams context
     "4.5": ["4.1"],               // UI mockups assume basic SVG/visual understanding
@@ -875,56 +876,56 @@ function MasteryPanel({ tiers, tierMeta, allSteps, done, pct }) {
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 const RESULT_PLACEHOLDERS = {
-  "1.1": "Asked Claude to explain blockchain like I'm 5",
+  "1.1": "Asked Claude to plan my week like a personal assistant",
   "1.2": "Brief with my job title got me a perfect cover letter",
-  "1.3": "Claude as a lawyer reviewed my lease agreement",
+  "1.3": "Claude as a financial advisor reviewed my investment plan",
   "1.4": "Got my meeting notes as a clean bullet summary",
   "1.5": "Refined a product tagline through 4 iterations",
-  "2.1": "Built a freelance rate calculator with tax",
+  "2.1": "Built a freelance rate calculator with tax and savings",
   "2.2": "Created a team trivia quiz about our company history",
-  "2.3": "Generated a downloadable CSV budget spreadsheet",
-  "2.4": "Searched for competitor pricing in real time",
-  "2.5": "Set a reminder system for my weekly review",
-  "3.1": "Used a project to keep my brand voice consistent",
-  "3.2": "Created a project for my client onboarding workflow",
-  "3.3": "Uploaded my brand doc and got on-brand copy instantly",
-  "3.4": "Set instructions so Claude always responds formally",
-  "3.5": "Built a memory profile so Claude knows my business",
-  "4.1": "Generated a full icon set for my app in SVG",
-  "4.2": "Created an infographic explaining our pricing tiers",
-  "4.3": "Built a customer journey flowchart for my team",
-  "4.4": "Mapped the 10 best coffee shops near our office",
-  "4.5": "Wireframed a mobile checkout flow in minutes",
-  "5.1": "Wrote 3 Facebook ad variations for my product launch",
-  "5.2": "Built a 5-email welcome sequence for new subscribers",
-  "5.3": "Got a week of Instagram captions for my food brand",
-  "5.4": "Wrote a short film script from a single premise",
-  "5.5": "Translated my pitch deck into Spanish and French",
-  "6.1": "Described a tool in plain English, got working code",
-  "6.2": "Understood a complex API I had never seen before",
-  "6.3": "Fixed a bug in my Python script in under 2 minutes",
-  "6.4": "Found the key insight hidden in 3 months of sales data",
-  "6.5": "Calculated my break-even point for a new product line",
-  "7.1": "Built an app that saves client notes to a database",
-  "7.2": "Created a multi-screen sales dashboard with charts",
-  "7.3": "Built a crypto tracker pulling live prices from an API",
-  "7.4": "Made an AI writing coach that critiques any draft",
-  "7.5": "Cloned a Notion-style tool for my team's use",
-  "8.1": "Enabled MCP and connected my first tool to Claude",
+  "2.3": "Generated a downloadable client proposal in Word format",
+  "2.4": "Searched for competitor pricing and market trends live",
+  "2.5": "Created a full SVG icon set for my app in minutes",
+  "3.1": "Set up a Project for my e-commerce business with full context",
+  "3.2": "Created my first Project for managing my job search",
+  "3.3": "Uploaded my brand guide and got on-brand copy instantly",
+  "3.4": "Set instructions so Claude always responds in my tone",
+  "3.5": "Built a memory profile so Claude knows my work and goals",
+  "4.1": "Wrote 3 Facebook ad variations for my product launch",
+  "4.2": "Built a 5-email welcome sequence for new subscribers",
+  "4.3": "Got a week of Instagram captions for my food brand",
+  "4.4": "Wrote a short film script from a single premise",
+  "4.5": "Turned raw sales data into a shareable infographic",
+  "5.1": "Described a tool in plain English, got working Python code",
+  "5.2": "Understood a complex API I had never seen before",
+  "5.3": "Fixed a bug in my script in under 2 minutes",
+  "5.4": "Found the key insight hidden in 3 months of sales data",
+  "5.5": "Mapped my entire client onboarding process as a flowchart",
+  "6.1": "Built a habit tracker app that saves data between sessions",
+  "6.2": "Created a 4-tab project dashboard with full navigation",
+  "6.3": "Built a live crypto tracker pulling real prices from an API",
+  "6.4": "Made an AI writing coach that critiques any draft",
+  "6.5": "Cloned a Notion-style tool tailored to my workflow",
+  "7.1": "Designed a landing page for my SaaS product in Claude Design",
+  "7.2": "Built a full app prototype with home, menu, and checkout screens",
+  "7.3": "Created a 10-slide investor pitch deck from scratch",
+  "7.4": "Wireframed a 3-screen mobile banking app in minutes",
+  "7.5": "Set up a full brand design system with my colours and fonts",
+  "8.1": "Connected my first MCP server and unlocked Claude\'s real power",
   "8.2": "Claude found and summarised my last 10 Drive files",
   "8.3": "Asked Claude to update my Notion CRM automatically",
   "8.4": "Claude posted a summary to our team Slack channel",
-  "8.5": "Chained Drive + Notion + Slack in one workflow",
-  "9.1": "Explored Claude Design to mock up a landing page",
-  "9.2": "Designed a full app prototype in under 20 minutes",
-  "9.3": "Created a 12-slide investor pitch deck from scratch",
-  "9.4": "Exported my presentation to PowerPoint for a client",
-  "9.5": "Set up a brand system with colours, fonts and tone",
-  "10.1": "Learned how skills extend what Claude can do",
-  "10.2": "Used a built-in skill to automate my research",
-  "10.3": "Built a custom skill that summarises any PDF I paste",
-  "10.4": "Stacked 3 skills to automate my weekly reporting",
-  "10.5": "Shared my content skill with my whole team",
+  "8.5": "Chained Drive + Notion + Slack in one single request",
+  "9.1": "Understood the difference between Skills and Project instructions",
+  "9.2": "Used the built-in Excel skill to build a dynamic dashboard",
+  "9.3": "Built a custom LinkedIn writing skill in my exact voice",
+  "9.4": "Stacked my writing and translation skills for multilingual content",
+  "9.5": "Exported my brand skill and shared it with my whole team",
+  "10.1": "Used Claude Code to refactor my entire codebase to TypeScript",
+  "10.2": "Claude in Chrome summarised a 40-page report while I browsed",
+  "10.3": "Cowork renamed and organised 200 files in my Downloads folder",
+  "10.4": "Claude in Excel built a 12-month revenue forecast from my data",
+  "10.5": "Claude in PowerPoint redesigned my deck to match our brand",
 };
 
 export default function App() {
@@ -1242,6 +1243,7 @@ export default function App() {
   // Unlock ALL remaining locked steps
   const unlockAll = () => {
     if (!user) { setShowAuth(true); return; }
+    // Use exact pack costs to avoid rounding issues
     const newIds = allLockedPaid.map(s => s.id);
     const amount = parseFloat(costOf(newIds).toFixed(2));
     doUnlock(newIds, amount);
@@ -1896,8 +1898,18 @@ export default function App() {
         const packAmt     = Math.round(costOf(packStepIds));
 
         const allRemIds   = ALL_STEPS.filter(s => !unlockedIds.has(s.id) && TIER_META[s.tier].base > 0).map(s=>s.id);
-        const allRemAmt   = Math.min(1500, Math.round(costOf(allRemIds)));
-        const alreadyPaidAmt = Math.round(1500 - allRemAmt);
+        const pack1RemIds = allRemIds.filter(id => PACK1_TIERS.includes(parseInt(id.split(".")[0])));
+    const pack2RemIds = allRemIds.filter(id => PACK2_TIERS.includes(parseInt(id.split(".")[0])));
+    const pack1RemCost = pack1RemIds.length > 0 ? Math.min(PACK1_FULL_COST, Math.round(costOf(pack1RemIds))) : 0;
+    const pack2RemCost = pack2RemIds.length > 0 ? Math.min(PACK2_FULL_COST, Math.round(costOf(pack2RemIds))) : 0;
+    const allRemAmt = pack1RemCost + pack2RemCost;
+        // Only count paid steps (tiers 3+) in already applied calculation
+    // Calculate already paid — only count paid steps, cap packs at their defined costs
+    const ownedPack1 = ALL_STEPS.filter(s => isStepUnlocked(s) && PACK1_TIERS.includes(s.tier));
+    const ownedPack2 = ALL_STEPS.filter(s => isStepUnlocked(s) && PACK2_TIERS.includes(s.tier));
+    const pack1Paid  = ownedPack1.length === 25 ? PACK1_FULL_COST : Math.round(costOf(ownedPack1.map(s=>s.id)));
+    const pack2Paid  = ownedPack2.length === 15 ? PACK2_FULL_COST : Math.round(costOf(ownedPack2.map(s=>s.id)));
+    const alreadyPaidAmt = pack1Paid + pack2Paid;
 
         const options = [
           {
