@@ -1012,6 +1012,22 @@ export default function App() {
     toggleDone(stepId, e);
   };
 
+  // Check result quality via API
+  const checkResultQuality = async (text, stepLabel) => {
+    try {
+      const res = await fetch('/api/check-result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resultText: text, stepLabel })
+      });
+      const data = await res.json();
+      if (data.quality === 'poor' && data.suggestion) {
+        setResultToast(data.suggestion);
+        setTimeout(() => setResultToast(null), 12000); // auto dismiss after 12s
+      }
+    } catch { /* fail silently */ }
+  };
+
   // Add a result
   const addResult = (stepId) => {
     if (!resultDraft.title.trim() && !resultDraft.text.trim()) return;
@@ -1025,6 +1041,12 @@ export default function App() {
     const newResults = [...myResults, result];
     setMyResults(newResults);
     if (user) saveUserData(user.id, { my_results: newResults });
+    // Show "try your own idea" nudge
+    setShowOwnIdea(stepId);
+    setTimeout(() => setShowOwnIdea(null), 6000);
+    // Check quality in background
+    const step = ALL_STEPS.find(s => s.id === stepId);
+    if (step && resultDraft.text.trim()) checkResultQuality(resultDraft.text, step.label);
     setResultDraft({ title:'', text:'' });
     setAddResultFor(null);
   };
@@ -1110,6 +1132,8 @@ export default function App() {
   });
   const [copiedIdeaId, setCopiedIdea]  = useState(null);
   const [expandedResult, setExpandedResult] = useState(null);
+  const [resultToast, setResultToast]      = useState(null); // {message} fade-in quality hint
+  const [showOwnIdea, setShowOwnIdea]      = useState(null); // stepId that just got a result saved
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
   const [tierModal, setTierModal]      = useState(null);    // locked tier clicked -> tierId
   const [savedTips, setSavedTips]      = useState(() => {
@@ -1324,6 +1348,8 @@ export default function App() {
         .sub-row:hover{background:#0b0b0b;}
         .try-line{font-size:0.75rem;padding:0.38rem 0.65rem;margin:0.22rem 0;border-radius:0 5px 5px 0;line-height:1.55;border-left:2px solid;background:#0c0c0c;color:#c8c8c8;}
         .pulse-glow-yellow { animation: pulseYellow 2s ease-in-out infinite; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeOut { from{opacity:1} to{opacity:0} }
         @media (max-width: 480px) {
           .nav-bar { padding: 0.6rem 0.85rem !important; flex-wrap: wrap; gap: 0.4rem; }
           .nav-logo { font-size: 0.85rem !important; letter-spacing: 2px !important; }
@@ -1409,6 +1435,21 @@ export default function App() {
           </button>
         </div>
       </nav>
+
+      {/* ── QUALITY HINT TOAST ─────────────────────────────────────── */}
+      {resultToast && (
+        <div style={{ position:"fixed", bottom:"1.5rem", left:"50%", transform:"translateX(-50%)", zIndex:500, maxWidth:"min(380px, 90vw)", width:"100%", animation:"fadeIn 0.4s ease" }}>
+          <div style={{ background:"#0f0f0f", border:"1px solid #facc1544", borderRadius:12, padding:"0.85rem 1rem", display:"flex", gap:"0.75rem", alignItems:"flex-start", boxShadow:"0 8px 32px #000000aa" }}>
+            <span style={{ fontSize:"0.9rem", flexShrink:0 }}>💡</span>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:"0.62rem", color:"#facc15", letterSpacing:"1px", marginBottom:"0.25rem" }}>COULD BE BETTER</div>
+              <div style={{ fontSize:"0.7rem", color:"#aaa", lineHeight:1.6 }}>{resultToast}</div>
+            </div>
+            <button onClick={() => setResultToast(null)}
+              style={{ background:"none", border:"none", color:"#444", fontSize:"0.9rem", cursor:"pointer", flexShrink:0, lineHeight:1 }}>×</button>
+          </div>
+        </div>
+      )}
 
       {/* ── FEATURE DISCOVERY BANNER ──────────────────────────────── */}
       {!seenFeatures && (
@@ -1684,12 +1725,19 @@ export default function App() {
                             <div style={{ background:"#0a0a0a", border:`1px solid ${tm.color}18`, borderRadius:5, padding:"0.48rem 0.65rem", margin:"0.5rem 0", fontSize:"0.68rem", color:"#666", lineHeight:1.65 }}>
                               <span style={{ color:tm.color, fontWeight:500 }}>💡 </span>{step.tip}
                             </div>
-                            {/* Add result button */}
+                            {/* Add result button + own idea nudge */}
                             {addResultFor !== step.id && (
-                              <button onClick={e => { e.stopPropagation(); setAddResultFor(step.id); setResultDraft({title:'',text:''}); }}
-                                style={{ background:"none", border:`1px dashed ${tm.color}44`, color:`${tm.color}99`, fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1.5px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer", marginTop:"0.5rem", width:"100%", textAlign:"center" }}>
-                                + Add My Result
-                              </button>
+                              <>
+                                <button onClick={e => { e.stopPropagation(); setAddResultFor(step.id); setResultDraft({title:'',text:''}); }}
+                                  style={{ background:"none", border:`1px dashed ${tm.color}44`, color:`${tm.color}99`, fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1.5px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer", marginTop:"0.5rem", width:"100%", textAlign:"center" }}>
+                                  + Add My Result
+                                </button>
+                                {showOwnIdea === step.id && (
+                                  <div style={{ marginTop:"0.4rem", background:`${tm.color}11`, border:`1px solid ${tm.color}33`, borderRadius:8, padding:"0.5rem 0.75rem", fontSize:"0.65rem", color:tm.color, lineHeight:1.6, animation:"fadeIn 0.4s ease" }}>
+                                    ✦ Now try it with something real to <em>you</em> — then save that result too. Your personalised project ideas will be much more specific.
+                                  </div>
+                                )}
+                              </>
                             )}
                             {addResultFor === step.id && (
                               <div style={{ marginTop:"0.5rem", background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
