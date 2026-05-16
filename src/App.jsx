@@ -1279,10 +1279,7 @@ export default function App() {
     return Math.round(costOf(remaining.map(s => s.id)));
   };
 
-  const isStepUnlocked = (step) => {
-    if (TIER_META[step.tier].base === 0) return true;
-    return unlockedIds.has(step.id);
-  };
+  const isStepUnlocked = (step) => { return true; }; // TEMP: all unlocked for review
 
   const pct = Math.round((done.size / ALL_STEPS.length) * 100);
   const tiers = Object.keys(TIER_META).map(Number).sort((a,b)=>a-b);
