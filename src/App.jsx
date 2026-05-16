@@ -1062,21 +1062,28 @@ export default function App() {
   const generateBuildIdeas = async () => {
     setBuildLoading(true);
     setBuildIdeas(null);
-    const masteredSteps = ALL_STEPS.filter(s => done.has(s.id));
-    if (masteredSteps.length === 0) {
-      setBuildIdeas([{ title: 'No mastered steps yet', description: 'Mark some steps as Mastered first — then come back here for personalised project ideas based on what you know.', skills_used: [] }]);
+
+    const resultTitles = myResults.length > 0
+      ? myResults.slice(-8).map(r => r.title).join(', ')
+      : '';
+
+    // Get starred tip step labels
+    const starredSteps = ALL_STEPS
+      .filter(s => savedTips.has(s.id))
+      .map(s => s.label)
+      .join(', ');
+
+    if (!resultTitles && !starredSteps) {
+      setBuildIdeas([{ title: 'Nothing personal yet', description: 'Save some results and star some tips first — then your project ideas will be genuinely tailored to what you actually work on.', skills_used: [] }]);
       setBuildLoading(false);
       return;
     }
-    const stepNames = masteredSteps.map(s => s.label).join(', ');
-    const resultContext = myResults.length > 0
-      ? myResults.slice(-6).map(r => r.title).join(', ')
-      : '';
+
     try {
       const res = await fetch('/api/build-ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stepNames, resultContext })
+        body: JSON.stringify({ resultTitles, starredSteps })
       });
       const data = await res.json();
       if (data.error) {
@@ -2355,7 +2362,7 @@ export default function App() {
           <div onClick={e => e.stopPropagation()} style={{ background:"#0a0a0a", border:"1px solid #1e1e1e", borderRadius:14, padding:"1.75rem", width:"100%", maxWidth:440 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.25rem" }}>
               <div>
-                <div style={{ fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase", marginBottom:"0.2rem" }}>Based on your mastered steps</div>
+                <div style={{ fontSize:"0.55rem", color:"#555", letterSpacing:"2.5px", textTransform:"uppercase", marginBottom:"0.2rem" }}>Based on your results & starred tips</div>
                 <h2 style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"1.5rem", letterSpacing:"2px", color:"#e0e0e0" }}>Project Ideas</h2>
               </div>
               <button onClick={() => setShowBuilder(false)} style={{ background:"none", border:"none", color:"#444", fontSize:"1rem", cursor:"pointer" }}>×</button>
