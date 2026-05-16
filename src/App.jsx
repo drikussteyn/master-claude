@@ -1136,6 +1136,14 @@ export default function App() {
     }, 0);
   };
 
+  // Value of steps regardless of lock status (for showing credit already applied)
+  const valueOf = (ids) => {
+    return ids.reduce((sum, id) => {
+      if (TIER_META[parseInt(id.split(".")[0])].base === 0) return sum;
+      return sum + stepPrice(id);
+    }, 0);
+  };
+
   // All locked paid steps in the system
   const allLockedPaid = ALL_STEPS.filter(s =>
     TIER_META[s.tier].base > 0 && !unlockedIds.has(s.id)
@@ -1841,7 +1849,7 @@ export default function App() {
                     const alreadyOwned = recs.ids.filter(id => unlockedIds.has(id));
                     const newSteps     = recs.ids.filter(id => !unlockedIds.has(id) && TIER_META[parseInt(id.split(".")[0])].base > 0);
                     const toPay        = Math.round(costOf(newSteps));
-                    const credit       = Math.round(costOf(alreadyOwned.filter(id => TIER_META[parseInt(id.split(".")[0])].base > 0)));
+                    const credit       = Math.round(valueOf(alreadyOwned.filter(id => TIER_META[parseInt(id.split(".")[0])].base > 0)));
                     return (
                       <>
                         {alreadyOwned.length > 0 && (
