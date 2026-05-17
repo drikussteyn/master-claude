@@ -1065,6 +1065,59 @@ export default function App() {
     } catch { /* fail silently */ }
   };
 
+  // Load quiz question for a step
+  const loadQuiz = async (step) => {
+    setQuizFor(step.id);
+    setQuizData(null);
+    setQuizAnswer(null);
+    setQuizResult(null);
+    setQuizLoading(true);
+    try {
+      const res = await fetch('/api/quiz-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepLabel: step.label, stepWhat: step.what, stepTip: step.tip })
+      });
+      const data = await res.json();
+      if (data.skip) {
+        // API failed — mark mastered silently
+        setQuizFor(null);
+        toggleDone(step.id, { stopPropagation: () => {} });
+      } else {
+        setQuizData(data);
+      }
+    } catch {
+      // API failed — mark mastered silently
+      setQuizFor(null);
+      toggleDone(step.id, { stopPropagation: () => {} });
+    }
+    setQuizLoading(false);
+  };
+
+  // Submit quiz answer
+  const submitQuiz = (step, selectedIdx) => {
+    setQuizAnswer(selectedIdx);
+    if (selectedIdx === quizData.correct) {
+      setQuizResult('correct');
+      setTimeout(() => {
+        setQuizFor(null);
+        setQuizData(null);
+        setQuizAnswer(null);
+        setQuizResult(null);
+        toggleDone(step.id, { stopPropagation: () => {} });
+      }, 1200);
+    } else {
+      setQuizResult('wrong');
+    }
+  };
+
+  // Retry quiz with fresh question
+  const retryQuiz = (step) => {
+    setQuizAnswer(null);
+    setQuizResult(null);
+    loadQuiz(step);
+  };
+
   // Add a result
   const addResult = (stepId) => {
     if (!resultDraft.title.trim() && !resultDraft.text.trim()) return;
@@ -1177,6 +1230,11 @@ export default function App() {
   const [copiedIdeaId, setCopiedIdea]  = useState(null);
   const [expandedResult, setExpandedResult] = useState(null);
   const [openHowTo, setOpenHowTo]            = useState(null); // stepId with how-to expanded
+  const [quizFor, setQuizFor]                = useState(null); // stepId currently being quizzed
+  const [quizData, setQuizData]              = useState(null); // {question, options, correct}
+  const [quizLoading, setQuizLoading]        = useState(false);
+  const [quizAnswer, setQuizAnswer]          = useState(null); // index of selected answer
+  const [quizResult, setQuizResult]          = useState(null); // 'correct' | 'wrong'
   const [resultToast, setResultToast]      = useState(null); // {message} fade-in quality hint
   const [showOwnIdea, setShowOwnIdea]      = useState(null); // stepId that just got a result saved
   const [stepModal, setStepModal]      = useState(null);    // locked step clicked -> { step, allRemaining }
@@ -1835,12 +1893,54 @@ export default function App() {
                                 </div>
                               </div>
                             )}
-                            {/* Mark mastered */}
+                            {/* Mark mastered — quiz gated */}
                             <div style={{ marginTop:"0.65rem" }}>
-                              <button className="done-btn" onClick={e => { e.stopPropagation(); toggleDone(step.id, e); }}
-                                style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
-                                {isDone ? "✓ MASTERED" : "MARK MASTERED"}
-                              </button>
+                              {quizFor === step.id ? (
+                                <div style={{ background:"#090909", border:`1px solid ${tm.color}33`, borderRadius:10, padding:"0.85rem" }} onClick={e => e.stopPropagation()}>
+                                  {quizLoading ? (
+                                    <div style={{ fontSize:"0.68rem", color:"#555", textAlign:"center", padding:"0.5rem", letterSpacing:"1px" }}>Generating question...</div>
+                                  ) : quizData ? (
+                                    <>
+                                      <div style={{ fontSize:"0.7rem", color:"#ccc", lineHeight:1.6, marginBottom:"0.75rem", fontWeight:500 }}>{quizData.question}</div>
+                                      <div style={{ display:"flex", flexDirection:"column", gap:"0.4rem", marginBottom:"0.65rem" }}>
+                                        {quizData.options.map((opt, i) => {
+                                          let bg = "#0d0d0d";
+                                          let border = "#1e1e1e";
+                                          let color = "#888";
+                                          if (quizAnswer !== null) {
+                                            if (i === quizData.correct) { bg = `${tm.color}22`; border = tm.color; color = tm.color; }
+                                            else if (i === quizAnswer && quizAnswer !== quizData.correct) { bg = "#ff444422"; border = "#ff4444"; color = "#ff4444"; }
+                                          }
+                                          return (
+                                            <button key={i} onClick={() => quizAnswer === null && submitQuiz(step, i)}
+                                              style={{ background:bg, border:`1px solid ${border}`, color, fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", padding:"0.5rem 0.75rem", borderRadius:7, cursor: quizAnswer === null ? "pointer" : "default", textAlign:"left", transition:"all 0.2s", lineHeight:1.5 }}>
+                                              {opt}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                      {quizResult === 'correct' && (
+                                        <div style={{ fontSize:"0.68rem", color:tm.color, textAlign:"center", letterSpacing:"1px" }}>✓ Correct — marking as mastered</div>
+                                      )}
+                                      {quizResult === 'wrong' && (
+                                        <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
+                                          <div style={{ fontSize:"0.68rem", color:"#ff4444", textAlign:"center" }}>Not quite — re-study the step and try again</div>
+                                          <button onClick={() => retryQuiz(step)}
+                                            style={{ background:"none", border:`1px solid ${tm.color}44`, color:tm.color, fontFamily:"'DM Mono',monospace", fontSize:"0.62rem", padding:"0.4rem", borderRadius:6, cursor:"pointer", letterSpacing:"1px" }}>
+                                            Try again →
+                                          </button>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <button className="done-btn"
+                                  onClick={e => { e.stopPropagation(); if (!isDone) loadQuiz(step); else toggleDone(step.id, e); }}
+                                  style={{ background:isDone ? tm.color : "transparent", color:isDone ? "#000" : tm.color, borderColor:tm.color }}>
+                                  {isDone ? "✓ MASTERED" : "MARK MASTERED"}
+                                </button>
+                              )}
                             </div>
                           </div>
                         )}
