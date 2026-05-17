@@ -2444,7 +2444,7 @@ export default function App() {
                     ✦ {pack.credits}
                   </div>
                   <div style={{ fontSize:"0.62rem", color:"#555", marginBottom:"0.75rem" }}>credits</div>
-                  <button
+                  <div
                     style={{ background: pack.popular ? "linear-gradient(135deg,#facc15,#f97316)" : "#111", border:`1px solid ${pack.popular ? "#facc1544" : "#2a2a2a"}`, color: pack.popular ? "#000" : "#888", fontFamily:"'DM Mono',monospace", fontSize:"0.68rem", fontWeight:500, padding:"0.55rem 0", width:"100%", borderRadius:20, letterSpacing:"1px", pointerEvents:"none" }}>
                     ${pack.price}
                   </div>
