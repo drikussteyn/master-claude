@@ -1739,15 +1739,14 @@ export default function App() {
                                   style={{ background:"none", border:`1px dashed ${tm.color}44`, color:`${tm.color}99`, fontFamily:"'DM Mono',monospace", fontSize:"0.58rem", letterSpacing:"1.5px", padding:"0.3rem 0.75rem", borderRadius:20, cursor:"pointer", marginTop:"0.5rem", width:"100%", textAlign:"center" }}>
                                   + Add My Result
                                 </button>
-                                {showOwnIdea === step.id && (
-                                  <div style={{ marginTop:"0.4rem", background:`${tm.color}11`, border:`1px solid ${tm.color}33`, borderRadius:8, padding:"0.5rem 0.75rem", fontSize:"0.65rem", color:tm.color, lineHeight:1.6, animation:"fadeIn 0.4s ease" }}>
-                                    ✦ Now try it with something real to <em>you</em> — then save that result too. Your personalised project ideas will be much more specific.
-                                  </div>
-                                )}
+
                               </>
                             )}
                             {addResultFor === step.id && (
                               <div style={{ marginTop:"0.5rem", background:"#090909", border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.75rem" }} onClick={e => e.stopPropagation()}>
+                                <div style={{ fontSize:"0.62rem", color:`${tm.color}99`, lineHeight:1.6, marginBottom:"0.4rem", fontStyle:"italic" }}>
+                                  ✦ Use something real to you — your project ideas will be much more personal.
+                                </div>
                                 <input placeholder={`Title (e.g. ${RESULT_PLACEHOLDERS[step.id] || "what did you make?"})`} value={resultDraft.title}
                                   onChange={e => setResultDraft(p => ({...p, title: e.target.value}))}
                                   style={{ width:"100%", background:"#0d0d0d", border:"1px solid #1e1e1e", borderRadius:6, padding:"0.45rem 0.65rem", color:"#ccc", fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", marginBottom:"0.5rem", outline:"none" }} />
@@ -2373,10 +2372,9 @@ export default function App() {
               <div style={{ background:"#0d0d0d", border:"1px solid #facc1522", borderRadius:10, padding:"1rem", marginBottom:"1.25rem" }}>
                 <div style={{ fontSize:"0.75rem", color:"#facc15", fontWeight:500, marginBottom:"0.5rem" }}>⚡ How this works</div>
                 <div style={{ fontSize:"0.7rem", color:"#888", lineHeight:1.7, marginBottom:"0.85rem" }}>
-                  This looks at every step you've marked as <strong style={{ color:"#ccc" }}>Mastered</strong> and generates 3 specific project ideas tailored to exactly what you know. The more you master — and the more results you save — the more personalised your ideas become.
-                  <br/><br/>
-                  <strong style={{ color:"#ccc" }}>What to do with an idea:</strong> copy it, open Claude in a new tab, and paste it in. Your mastered skills are everything you need to build it.
-                </div>
+                                This reads your saved results and starred tips to generate 3 project ideas tailored to what you actually work on — not generic Claude use cases.<br/><br/>
+                                <strong style={{ color:"#ccc" }}>What to do with an idea:</strong> copy it, open Claude in a new tab, and paste it in.
+                              </div>
                 <button onClick={() => { setSeenBuilder(true); try { localStorage.setItem('mc_seen_builder', '1'); } catch {} }}
                   style={{ background:"#facc1522", border:"1px solid #facc1544", color:"#facc15", fontFamily:"'DM Mono',monospace", fontSize:"0.65rem", letterSpacing:"1.5px", padding:"0.5rem 1rem", borderRadius:20, cursor:"pointer", width:"100%" }}>
                   Got it →
