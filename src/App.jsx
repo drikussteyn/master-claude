@@ -876,31 +876,40 @@ function MasteryPanel({ tiers, tierMeta, allSteps, done, pct }) {
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 const HOW_TO_ACCESS = {
-  "3.1": ["Open claude.ai on desktop or mobile", "Look for 'Projects' in the left sidebar", "Click 'New Project'", "Give it a name — this becomes your workspace"],
-  "3.2": ["Open or create a Project (see Step 3.1)", "Click 'Edit' or the settings icon inside the project", "Add your instructions in the 'Custom instructions' field", "Every new chat inside this project will follow those instructions"],
-  "3.3": ["Open or create a Project", "Click 'Add content' or the + icon inside the project", "Upload a file (PDF, doc, or paste text)", "Claude can now reference it in every conversation in that project"],
-  "3.4": ["Go to claude.ai → click your profile icon (bottom left)", "Select 'Settings'", "Find 'Custom instructions' or 'Preferences'", "Type your default behaviour instructions — applies to all chats globally"],
-  "3.5": ["Open a Project or start a new chat", "Just tell Claude facts about yourself naturally — 'I run a SaaS business targeting freelancers'", "Claude retains this within the conversation or project", "For permanent memory use a Project with saved context files"],
-  "7.1": ["Go to claude.ai on desktop (Design works best on desktop)", "Start a new chat and describe what you want to design", "Claude will offer to open a visual canvas or you can ask explicitly: 'Open this in Claude Design'", "The design canvas will open as a separate panel on the right"],
-  "7.2": ["Open claude.ai on desktop", "Start a new chat — type 'Design a website for [your business]'", "Claude will generate and open a live preview you can edit in real time", "Click any element to edit it directly or describe changes in the chat"],
-  "7.3": ["Open claude.ai on desktop", "Type 'Create a pitch deck for [your idea]'", "Claude will build slides in the design canvas", "You can ask for specific slide changes, colour schemes, or layouts in the chat alongside it"],
-  "7.4": ["Open claude.ai on desktop", "Describe the interface you want: 'Design a mobile checkout flow for a clothing store'", "Claude generates wireframe-style mockups in the canvas", "Ask for changes, alternative layouts, or specific screen states in the chat"],
-  "7.5": ["Open claude.ai on desktop", "Type 'Create a brand design system for [your business]' with any details about your industry and vibe", "Claude builds a visual brand guide with colours, typography, and component examples", "Save or export the output for future use in all your design work"],
-  "8.1": ["Open claude.ai on desktop — MCP requires the desktop app or Claude Code", "Go to Settings → Developer or Advanced settings", "Find 'MCP Servers' and click 'Add server'", "Paste the MCP server config for the tool you want to connect (e.g. Notion, Google Drive)", "Restart Claude and the tool will appear in your available integrations"],
-  "8.2": ["Enable MCP (see Step 8.1)", "Install the Google Drive MCP server — config available at github.com/modelcontextprotocol/servers", "Add it in Claude Settings → MCP Servers", "Once connected, ask Claude directly: 'Find my last 10 files in Google Drive'"],
-  "8.3": ["Get your Notion integration token from notion.so/my-integrations", "Install the Notion MCP server using the config from github.com/modelcontextprotocol/servers", "Add it in Claude Settings → MCP Servers", "Share the specific Notion databases you want Claude to access with your integration"],
-  "8.4": ["Create a Slack app at api.slack.com/apps with bot token permissions", "Install the Slack MCP server using the config from github.com/modelcontextprotocol/servers", "Add your bot token to the MCP config", "Add the bot to your Slack workspace channels — Claude can now read and post"],
-  "8.5": ["Ensure each tool's MCP server is installed and connected (Steps 8.2–8.4)", "In a single Claude conversation, describe a multi-step workflow: 'Read the brief in my Notion page, write the content, then post it to Slack'", "Claude will use each connected tool in sequence", "You can save this as a Project instruction so it runs the same way every time"],
-  "9.1": ["Go to claude.ai → click your profile → Settings", "Look for 'Skills' or 'Capabilities' in the settings menu", "Skills extend what Claude can do beyond conversation", "Browse available skills or check docs.claude.ai for the current skills list"],
-  "9.2": ["Go to Settings → Skills inside claude.ai", "Browse built-in skills — look for categories like Research, Writing, or Analysis", "Click to enable a skill", "It will now be available in your chats — Claude will use it automatically when relevant"],
-  "9.3": ["Go to Settings → Skills → Create custom skill", "Describe what the skill should do in plain English", "Give it a name and save it", "Test it in a new chat by asking Claude to perform the task the skill is designed for"],
-  "9.4": ["Create multiple skills for related tasks (see Step 9.3)", "In a complex task, Claude will automatically chain relevant skills together", "You can also explicitly ask: 'Use my research skill and my summary skill together for this'", "Skills stack — the output of one becomes the input of the next"],
-  "9.5": ["Go to Settings → Skills → find your custom skill", "Look for a 'Share' option or export config", "Share the skill config with your team members", "They import it into their own Claude settings — everyone now uses the same workflow"],
-  "10.1": ["Install Node.js from nodejs.org (version 18 or higher)", "Open your terminal (Mac: Terminal app, Windows: Command Prompt)", "Run: npm install -g @anthropic-ai/claude-code", "Navigate to your project folder: cd your-project", "Run: claude — you're in. Describe what you want to build."],
-  "10.2": ["Install the Claude Chrome extension from the Chrome Web Store — search 'Claude for Chrome' by Anthropic", "Pin it to your browser toolbar", "Click the extension icon on any webpage to open Claude in a side panel", "Claude can now see the page content — ask questions about it directly"],
-  "10.3": ["Download the Cowork desktop app from claude.ai/cowork or the Anthropic website", "Install and open it — sign in with your Anthropic account", "Grant it access to the folders you want it to manage", "Describe your automation task in plain English and let it run"],
-  "10.4": ["Open Microsoft Excel (Microsoft 365 required)", "Go to Insert → Add-ins → Get Add-ins", "Search for 'Claude' in the Office Add-ins store", "Click Add and sign in with your Anthropic account", "Claude appears as a panel on the right side of your spreadsheet"],
-  "10.5": ["Open Microsoft PowerPoint (Microsoft 365 required)", "Go to Insert → Add-ins → Get Add-ins", "Search for 'Claude' in the Office Add-ins store", "Click Add and sign in with your Anthropic account", "Claude appears as a panel — describe what you want and it edits your slides directly"],
+  // Tier 3 — Projects & Memory
+  "3.1": ["Go directly to: claude.ai/projects", "Click 'New Project'", "Give it a name — this becomes your persistent workspace", "All chats inside it share the same context and memory"],
+  "3.2": ["Open any Project at claude.ai/projects", "Click the project name → then 'Edit' or the pencil icon", "Add your instructions in the 'Custom instructions' field", "Every new chat inside this project will follow those instructions automatically"],
+  "3.3": ["Open any Project at claude.ai/projects", "Click 'Add content' or the + icon inside the project", "Upload a file (PDF, doc, image) or paste text directly", "Claude references it in every conversation within that project"],
+  "3.4": ["Go to claude.ai → click your profile icon (bottom left) → Settings", "Or go directly to: claude.ai/settings", "Find 'Custom instructions' or 'Preferences'", "Type your global default instructions — applies to all chats outside of projects"],
+  "3.5": ["Open a Project at claude.ai/projects or start a new chat", "Tell Claude facts about yourself naturally — it retains them within the session", "For permanent memory across all chats, save a context file inside a Project", "You can also write a 'personal brief' and upload it to any Project"],
+
+  // Tier 7 — Claude Design
+  "7.1": ["Go directly to: claude.ai/design", "Sign in if prompted — Design is available on all paid plans", "Start with a simple request: 'Design a landing page for my business'", "The visual canvas opens automatically on the right"],
+  "7.2": ["Go directly to: claude.ai/design", "Type what you want to build — be specific about your industry and style", "Claude generates a live preview you can edit in real time", "Click any element to select it or describe changes in the chat"],
+  "7.3": ["Go directly to: claude.ai/design", "Type: 'Create a pitch deck for [your idea] — [number] slides'", "Claude builds slides in the canvas — ask for layout or content changes in chat", "Export when done using the export button in the canvas toolbar"],
+  "7.4": ["Go directly to: claude.ai/design", "Type: 'Wireframe a mobile [screen type] for [your app or business]'", "Claude generates wireframe-style mockups with multiple screen states", "Ask for alternative layouts or specific changes directly in the chat"],
+  "7.5": ["Go directly to: claude.ai/design", "Type: 'Create a brand design system for [your business]' with your industry and tone", "Claude builds a visual guide — colours, fonts, logo concepts, and component examples", "Save the output as a file and upload it to your Project for future reference"],
+
+  // Tier 8 — Total Integration / MCP
+  "8.1": ["Go directly to: claude.ai/settings/integrations or claude.ai/settings/mcp", "Find 'MCP Servers' or 'Integrations' and click 'Add server'", "Paste the MCP server config for your chosen tool (configs at github.com/modelcontextprotocol/servers)", "Restart Claude — the connected tool will now appear in your available integrations"],
+  "8.2": ["Enable MCP first (see Step 8.1)", "Get the Google Drive MCP config from: github.com/modelcontextprotocol/servers", "Add it at claude.ai/settings/integrations and authorise your Google account", "Then ask Claude directly: 'Find my last 10 files in Google Drive'"],
+  "8.3": ["Get your Notion integration token at: notion.so/my-integrations", "Get the Notion MCP config from: github.com/modelcontextprotocol/servers", "Add it at claude.ai/settings/integrations and paste your token", "Share the Notion databases you want Claude to access with your integration"],
+  "8.4": ["Create a Slack app at: api.slack.com/apps", "Get the Slack MCP config from: github.com/modelcontextprotocol/servers", "Add it at claude.ai/settings/integrations with your bot token", "Add the bot to your Slack workspace — Claude can now read and post to channels"],
+  "8.5": ["Ensure each tool is connected at claude.ai/settings/integrations (Steps 8.2–8.4)", "In a single Claude conversation describe the full workflow across tools", "Claude will use each connected tool in sequence automatically", "Save the workflow as a Project instruction so it runs the same way every time"],
+
+  // Tier 9 — Claude Skills
+  "9.1": ["Go directly to: claude.ai/settings/skills or claude.ai/skills", "Skills extend what Claude can do beyond conversation", "Browse available built-in skills or read the overview at docs.claude.ai", "Enable the skills most relevant to your work"],
+  "9.2": ["Go to: claude.ai/settings/skills", "Browse built-in skills — categories include Research, Writing, Analysis, and more", "Toggle a skill on to enable it", "Claude will use it automatically in relevant conversations — no extra prompting needed"],
+  "9.3": ["Go to: claude.ai/settings/skills → click 'Create skill' or 'New skill'", "Describe what the skill should do in plain English", "Give it a name and save — test it immediately in a new chat", "Refine the description if the output isn't quite right"],
+  "9.4": ["Create individual skills for related tasks at claude.ai/settings/skills", "In a complex task Claude will chain relevant skills automatically", "You can also ask explicitly: 'Use my research skill and my summary skill for this task'", "Skills stack — the output of one feeds directly into the next"],
+  "9.5": ["Go to: claude.ai/settings/skills → find your custom skill", "Look for a 'Share' or 'Export' option on the skill", "Share the skill config or link with teammates", "They import it into their own Claude settings at claude.ai/settings/skills"],
+
+  // Tier 10 — Claude Ecosystem
+  "10.1": ["Read the full setup guide at: claude.ai/code or docs.claude.ai/claude-code", "Install Node.js from nodejs.org (version 18 or higher required)", "Open your terminal and run: npm install -g @anthropic-ai/claude-code", "Navigate to your project folder and run: claude — you're ready to build"],
+  "10.2": ["Go directly to the Chrome Web Store: chromewebstore.google.com", "Search 'Claude for Chrome' — install the official Anthropic extension", "Pin it to your toolbar and click it on any webpage", "Claude opens in a side panel and can see everything on the current page"],
+  "10.3": ["Download the Cowork desktop app at: claude.ai/cowork", "Install it and sign in with your Anthropic account", "Grant it access to the folders you want automated", "Describe your file task in plain English — Cowork runs it on your machine"],
+  "10.4": ["Requires Microsoft 365 — open Excel and go to Insert → Add-ins → Get Add-ins", "Or go directly to: appsource.microsoft.com and search 'Claude'", "Click Add and sign in with your Anthropic account", "Claude appears as a panel on the right side of your spreadsheet — ready to work with your data"],
+  "10.5": ["Requires Microsoft 365 — open PowerPoint and go to Insert → Add-ins → Get Add-ins", "Or go directly to: appsource.microsoft.com and search 'Claude'", "Click Add and sign in with your Anthropic account", "Claude appears as a panel — describe changes and it edits your slides directly"],
 };
 
 const RESULT_PLACEHOLDERS = {
@@ -1727,12 +1736,29 @@ export default function App() {
                                 </button>
                                 {openHowTo === step.id && (
                                   <div style={{ marginTop:"0.4rem", background:`${tm.color}08`, border:`1px solid ${tm.color}22`, borderRadius:8, padding:"0.65rem 0.75rem", animation:"fadeIn 0.2s ease" }}>
-                                    {HOW_TO_ACCESS[step.id].map((instruction, idx) => (
-                                      <div key={idx} style={{ display:"flex", gap:"0.5rem", marginBottom: idx < HOW_TO_ACCESS[step.id].length - 1 ? "0.4rem" : 0 }}>
-                                        <span style={{ fontSize:"0.58rem", color:tm.color, fontFamily:"'DM Mono',monospace", fontWeight:600, flexShrink:0 }}>{idx + 1}.</span>
-                                        <span style={{ fontSize:"0.65rem", color:"#888", lineHeight:1.55 }}>{instruction}</span>
-                                      </div>
-                                    ))}
+                                    {HOW_TO_ACCESS[step.id].map((instruction, idx) => {
+                                      // Make URLs clickable
+                                      const urlMatch = instruction.match(/(https?:\/\/\S+|[\w.-]+\.[\w]{2,}\/[\w./\-?=&]+)/);
+                                      return (
+                                        <div key={idx} style={{ display:"flex", gap:"0.5rem", marginBottom: idx < HOW_TO_ACCESS[step.id].length - 1 ? "0.4rem" : 0 }}>
+                                          <span style={{ fontSize:"0.58rem", color:tm.color, fontFamily:"'DM Mono',monospace", fontWeight:600, flexShrink:0 }}>{idx + 1}.</span>
+                                          <span style={{ fontSize:"0.65rem", color:"#888", lineHeight:1.55 }}>
+                                            {urlMatch ? (
+                                              <>
+                                                {instruction.split(urlMatch[0])[0]}
+                                                <a href={urlMatch[0].startsWith('http') ? urlMatch[0] : `https://${urlMatch[0]}`}
+                                                  target="_blank" rel="noopener noreferrer"
+                                                  onClick={e => e.stopPropagation()}
+                                                  style={{ color:tm.color, textDecoration:"underline", textDecorationStyle:"dotted" }}>
+                                                  {urlMatch[0]}
+                                                </a>
+                                                {instruction.split(urlMatch[0])[1]}
+                                              </>
+                                            ) : instruction}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>
